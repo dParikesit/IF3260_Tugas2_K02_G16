@@ -7,6 +7,7 @@ import {
   setColors,
   setGeometry,
 } from "./utils/tools.js";
+import { setupListener } from "./utils/ui.js";
 
 const canvas = document.querySelector("#canvas");
 const gl = canvas.getContext("webgl");
@@ -42,6 +43,9 @@ const main = () => {
     alert("WebGL isn't available");
     return;
   }
+
+  setupListener()
+
   // Bind it to ARRAY_BUFFER (think of it as ARRAY_BUFFER = positionBuffer)
   gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
   // Put geometry data into buffer

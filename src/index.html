@@ -19,14 +19,14 @@
         <h3>IMPORT AND EXPORT FILE</h3>
 
         <input type="file" id="import" accept=".json" />
-        <button onclick="importObjects()">Import</button>
+        <button id="importButton">Import</button>
         <input type="text" id="export" placeholder="Enter file name" />
-        <button onclick="exportObjects()">Export</button>
+        <button id="exportButton">Export</button>
 
         <h3>PROJECTION</h3>
-        <select id="projection" onchange="changeProjection(value)">
+        <select id="projection">
           <option value="orthographic">Orthographic</option>
-          <option value="perspective">Oblique</option>
+          <option value="oblique">Oblique</option>
           <option value="perspective">Perspective</option>
         </select>
 
@@ -34,20 +34,20 @@
         <label for="view-angle">View Angle: </label>
         <input
           type="range"
-          id="x-rotation"
+          id="view-x-rotation"
           min="-180"
           max="180"
-          oninput="changeRotation('x', value)"
+          step="1"
           value="0"
         />
 
         <label for="zoom">Zoom: </label>
         <input
           type="range"
-          id="y-rotation"
+          id="view-y-rotation"
           min="-180"
           max="180"
-          oninput="changeRotation('y', value)"
+          step="1"
           value="0"
         />
 
@@ -56,10 +56,10 @@
           <label for="x-rotation">dx: </label>
           <input
             type="range"
-            id="x-rotation"
+            id="obj-x-rotation"
             min="-180"
             max="180"
-            oninput="changeRotation('x', value)"
+            step="1"
             value="0"
           />
         </div>
@@ -67,10 +67,10 @@
           <label for="y-rotation">dy: </label>
           <input
             type="range"
-            id="y-rotation"
+            id="obj-y-rotation"
             min="-180"
             max="180"
-            oninput="changeRotation('y', value)"
+            step="1"
             value="0"
           />
         </div>
@@ -78,10 +78,10 @@
           <label for="z-rotation">dz: </label>
           <input
             type="range"
-            id="z-rotation"
+            id="obj-z-rotation"
             min="-180"
             max="180"
-            oninput="changeRotation('z', value)"
+            step="1"
             value="0"
           />
         </div>
@@ -90,11 +90,10 @@
           <label for="x-translation">dx: </label>
           <input
             type="range"
-            id="x-translation"
+            id="obj-x-translation"
             min="-1"
             max="1"
             step="0.01"
-            oninput="changeTranslation('x', value)"
             value="0"
           />
         </div>
@@ -102,11 +101,10 @@
           <label for="y-translation">dy: </label>
           <input
             type="range"
-            id="y-translation"
+            id="obj-y-translation"
             min="-1"
             max="1"
             step="0.01"
-            oninput="changeTranslation('y', value)"
             value="0"
           />
         </div>
@@ -114,48 +112,44 @@
           <label for="z-translation">dz: </label>
           <input
             type="range"
-            id="z-translation"
+            id="obj-z-translation"
             min="-1"
             max="1"
             step="0.01"
-            oninput="changeTranslation('z', value)"
             value="0"
           />
         </div>
         <h3>SCALING</h3>
         <div class="flex-row">
-          <label for="x-translation">dx: </label>
+          <label for="x-scale">dx: </label>
           <input
             type="range"
-            id="x-translation"
+            id="obj-x-scale"
             min="-1"
             max="1"
             step="0.01"
-            oninput="changeTranslation('x', value)"
             value="0"
           />
         </div>
         <div class="flex-row">
-          <label for="y-translation">dy: </label>
+          <label for="y-scale">dy: </label>
           <input
             type="range"
-            id="y-translation"
+            id="obj-y-scale"
             min="-1"
             max="1"
             step="0.01"
-            oninput="changeTranslation('y', value)"
             value="0"
           />
         </div>
         <div class="flex-row">
-          <label for="z-translation">dz: </label>
+          <label for="z-scale">dz: </label>
           <input
             type="range"
-            id="z-translation"
+            id="obj-z-scale"
             min="-1"
             max="1"
             step="0.01"
-            oninput="changeTranslation('z', value)"
             value="0"
           />
         </div>
