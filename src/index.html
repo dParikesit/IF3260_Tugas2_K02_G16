@@ -1,116 +1,195 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
-    <title>WebGL 3D CAD</title>
-</head>
-
-<body>
-    <canvas id="canvas"></canvas>
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
+    <title>WebGL Hollow Object</title>
+  </head>
+  <body>
     <div class="container">
-        <h1>Create shape</h1>
-        <div class="tools">
-            <button id="cube">Cube</button>
+      <div class="canvas-container">
+        <canvas id="canvas" width="600" height="600">
+          Oops ... your browser doesn't support the HTML5 canvas element
+        </canvas>
+      </div>
+      <div class="flex-column">
+        <h1>WebGL Hollow Object</h1>
+        <h3>IMPORT AND EXPORT FILE</h3>
+
+        <input type="file" id="import" accept=".json" />
+        <button onclick="importObjects()">Import</button>
+        <input type="text" id="export" placeholder="Enter file name" />
+        <button onclick="exportObjects()">Export</button>
+
+        <h3>PROJECTION</h3>
+        <select id="projection" onchange="changeProjection(value)">
+          <option value="orthographic">Orthographic</option>
+          <option value="perspective">Oblique</option>
+          <option value="perspective">Perspective</option>
+        </select>
+
+        <h3>VIEW</h3>
+        <label for="view-angle">View Angle: </label>
+        <input
+          type="range"
+          id="x-rotation"
+          min="-180"
+          max="180"
+          oninput="changeRotation('x', value)"
+          value="0"
+        />
+
+        <label for="zoom">Zoom: </label>
+        <input
+          type="range"
+          id="y-rotation"
+          min="-180"
+          max="180"
+          oninput="changeRotation('y', value)"
+          value="0"
+        />
+
+        <h3>ROTATION</h3>
+        <div class="flex-row">
+          <label for="x-rotation">dx: </label>
+          <input
+            type="range"
+            id="x-rotation"
+            min="-180"
+            max="180"
+            oninput="changeRotation('x', value)"
+            value="0"
+          />
         </div>
-
-        <h1>Loader</h1>
-        <div class="tools">
-            <button id="export">Export</button>
-            <label class="custom-file-upload">
-                <input type="file" />
-                Import
-            </label>
+        <div class="flex-row">
+          <label for="y-rotation">dy: </label>
+          <input
+            type="range"
+            id="y-rotation"
+            min="-180"
+            max="180"
+            oninput="changeRotation('y', value)"
+            value="0"
+          />
         </div>
-
-        <h1>Transformasi</h1>
-        <div id="transformation" class="tools">
-
+        <div class="flex-row">
+          <label for="z-rotation">dz: </label>
+          <input
+            type="range"
+            id="z-rotation"
+            min="-180"
+            max="180"
+            oninput="changeRotation('z', value)"
+            value="0"
+          />
         </div>
-
-        <h1>Camera</h1>
-        <div id="camera" class="tools">
-            <div class="container-object">
-                <h2>Projection</h2>
-                <select name="projection" id="projection">
-                    <option value="" selected disabled hidden>Choose here</option>
-                    <option value="orthographic">orthographic</option>
-                    <option value="oblique">oblique</option>
-                    <option value="perspective">perspective</option>
-                </select>
-            </div>
-            <div class="container-object"><h2>Cam distance</h2></div>
-            <div class="container-object"><h2>Move camera</h2></div>
-            <div class="container-object"><h2>Reset camera</h2></div>
+        <h3>TRANSLATION</h3>
+        <div class="flex-row">
+          <label for="x-translation">dx: </label>
+          <input
+            type="range"
+            id="x-translation"
+            min="-1"
+            max="1"
+            step="0.01"
+            oninput="changeTranslation('x', value)"
+            value="0"
+          />
         </div>
-
-        <h1>Shading</h1>
-        <label class="switch">
-            <input type="checkbox">
-            <span class="slider round"></span>
-        </label>
+        <div class="flex-row">
+          <label for="y-translation">dy: </label>
+          <input
+            type="range"
+            id="y-translation"
+            min="-1"
+            max="1"
+            step="0.01"
+            oninput="changeTranslation('y', value)"
+            value="0"
+          />
+        </div>
+        <div class="flex-row">
+          <label for="z-translation">dz: </label>
+          <input
+            type="range"
+            id="z-translation"
+            min="-1"
+            max="1"
+            step="0.01"
+            oninput="changeTranslation('z', value)"
+            value="0"
+          />
+        </div>
+        <h3>SCALING</h3>
+        <div class="flex-row">
+          <label for="x-translation">dx: </label>
+          <input
+            type="range"
+            id="x-translation"
+            min="-1"
+            max="1"
+            step="0.01"
+            oninput="changeTranslation('x', value)"
+            value="0"
+          />
+        </div>
+        <div class="flex-row">
+          <label for="y-translation">dy: </label>
+          <input
+            type="range"
+            id="y-translation"
+            min="-1"
+            max="1"
+            step="0.01"
+            oninput="changeTranslation('y', value)"
+            value="0"
+          />
+        </div>
+        <div class="flex-row">
+          <label for="z-translation">dz: </label>
+          <input
+            type="range"
+            id="z-translation"
+            min="-1"
+            max="1"
+            step="0.01"
+            oninput="changeTranslation('z', value)"
+            value="0"
+          />
+        </div>
+        <h3>SHADING</h3>
+      </div>
     </div>
-    <div id="objects" class="container container-object">
-        <button id="myBtn">Help</button>
-        <div id="myModal" class="modal">
-            <div class="modal-content">
-                <span class="close" id="close">&times;</span>
-                <h1>Help</h1>
-                <ul>
-                    <li>(Optional) Import objek menggunakan button bagian loader</li>
-                    <li>Pilih opsi di draw untuk memulai menggambar</li>
-                    <li>Pencet canvas untuk menggambar objek</li>
-                    <ol>
-                        <li>
-                            <b>POLYGON</b>: Klik kanan pada saat membuat titik terakhir, untuk berhenti membuat polygon
-                        </li>
-                    </ol>
-                    <li>Untuk mengubah warna vertex dan memindahkan vertex, pilih point di sidebar kanan kemudian pilih
-                        opsi di bagian Style</li>
-                    <li>Untuk melakukan translasi / rotasi objek, pilih objek di sidebar kanan kemudian geser slider di
-                        bagian Transformasi</li>
-                    <li>Untuk menghapus vertex pada polygon, klik delete button pada sidebar kanan. Penghapusan hanya
-                        dapat dilakukan untuk polygon dengan vertex lebih dari 4</li>
-                    <li>Untuk menambah vertex dengan posisi random pada polygon, klik add button pada sidebar kanan.
-                    </li>
-                    <li>(Optional) Export menggunakan button export di bagian loader</li>
-                </ul>
-            </div>
-        </div>
-        <h1>Object List</h1>
-        <div id="object-list" class="container container-object"></div>
-    </div>
-    <script id="vertex-shader-3d" type="x-shader/x-vertex">
-        attribute vec4 a_position;
-        attribute vec4 a_color;
-        
-        uniform mat4 u_matrix;
-        
-        varying vec4 v_color;
-        
-        void main() {
-        // Multiply the position by the matrix.
-        gl_Position = u_matrix * a_position;
-        
-        // Pass the color to the fragment shader.
-        v_color = a_color;
-        }
-    </script>
-    <!-- fragment shader -->
-    <script id="fragment-shader-3d" type="x-shader/x-fragment">
-        precision mediump float;
-        
-        // Passed in from the vertex shader.
-        varying vec4 v_color;
-        
-        void main() {
-        gl_FragColor = v_color;
-        }
-    </script>
-</body>
-<script type="module" src="index.js"></script>
+  </body>
+  <script id="vertex-shader-3d" type="x-shader/x-vertex">
+    attribute vec4 a_position;
+    attribute vec4 a_color;
 
+    uniform mat4 u_matrix;
+
+    varying vec4 v_color;
+
+    void main() {
+    // Multiply the position by the matrix.
+    gl_Position = u_matrix * a_position;
+
+    // Pass the color to the fragment shader.
+    v_color = a_color;
+    }
+  </script>
+  <!-- fragment shader -->
+  <script id="fragment-shader-3d" type="x-shader/x-fragment">
+    precision mediump float;
+
+    // Passed in from the vertex shader.
+    varying vec4 v_color;
+
+    void main() {
+    gl_FragColor = v_color;
+    }
+  </script>
+
+  <script type="module" src="index.js"></script>
 </html>

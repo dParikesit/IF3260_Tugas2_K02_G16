@@ -8,50 +8,53 @@ import {
   setGeometry,
 } from "./utils/tools.js";
 
-console.log("Hello world");
-
-var canvas = document.querySelector("#canvas");
-var gl = canvas.getContext("webgl");
-if (!gl) {
-  console.log("No WebGL");
-}
+const canvas = document.querySelector("#canvas");
+const gl = canvas.getContext("webgl");
 
 // setup GLSL program
-var program = createProgramFromScripts(gl, [
+const program = createProgramFromScripts(gl, [
   "vertex-shader-3d",
   "fragment-shader-3d",
 ]);
 
 // look up where the vertex data needs to go.
-var positionLocation = gl.getAttribLocation(program, "a_position");
-var colorLocation = gl.getAttribLocation(program, "a_color");
+const positionLocation = gl.getAttribLocation(program, "a_position");
+const colorLocation = gl.getAttribLocation(program, "a_color");
 
 // lookup uniforms
-var matrixLocation = gl.getUniformLocation(program, "u_matrix");
+const matrixLocation = gl.getUniformLocation(program, "u_matrix");
 
 // Create a buffer to put positions in
-var positionBuffer = gl.createBuffer();
-// Bind it to ARRAY_BUFFER (think of it as ARRAY_BUFFER = positionBuffer)
-gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-// Put geometry data into buffer
-setGeometry(gl);
+const positionBuffer = gl.createBuffer();
 
 // Create a buffer to put colors in
-var colorBuffer = gl.createBuffer();
-// Bind it to ARRAY_BUFFER (think of it as ARRAY_BUFFER = colorBuffer)
-gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-// Put geometry data into buffer
-setColors(gl);
+const colorBuffer = gl.createBuffer();
 
-var translation = [-150, 0, -360];
-var rotation = [degToRad(190), degToRad(40), degToRad(320)];
-var scale = [1, 1, 1];
-var cameraAngleRadians = degToRad(0);
-var fieldOfViewRadians = degToRad(60);
+const translation = [-150, 0, -360];
+const rotation = [degToRad(190), degToRad(40), degToRad(320)];
+const scale = [1, 1, 1];
+const cameraAngleRadians = degToRad(0);
+const fieldOfViewRadians = degToRad(60);
 
-drawScene();
+const main = () => {
+  if (!gl) {
+    console.log("No WebGL");
+    alert("WebGL isn't available");
+    return;
+  }
+  // Bind it to ARRAY_BUFFER (think of it as ARRAY_BUFFER = positionBuffer)
+  gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+  // Put geometry data into buffer
+  setGeometry(gl);
 
-function drawScene() {
+  // Bind it to ARRAY_BUFFER (think of it as ARRAY_BUFFER = colorBuffer)
+  gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+  // Put geometry data into buffer
+  setColors(gl);
+  drawScene();
+};
+
+const drawScene = () => {
   resizeCanvasToDisplaySize(gl.canvas);
 
   // Tell WebGL how to convert from clip space to pixels
@@ -159,4 +162,6 @@ function drawScene() {
     var count = 16 * 6;
     gl.drawArrays(primitiveType, offset, count);
   }
-}
+};
+
+main();
