@@ -1,12 +1,11 @@
 "use strict";
 import { createProgramFromScripts } from "./utils/initializer.js";
 import { m4 } from "./utils/m4.js";
-import { degToRad } from "./utils/math.js";
 import { StateCamera, StateObj } from "./utils/state.js";
 import {
   resizeCanvasToDisplaySize,
   setColors,
-  setGeometry
+  setGeometry,
 } from "./utils/tools.js";
 import { setupListener } from "./utils/ui.js";
 
@@ -14,7 +13,7 @@ const canvas = document.querySelector("#canvas");
 const gl = canvas.getContext("webgl");
 
 const obj = new StateObj();
-const camera = new StateCamera(gl, obj.projection);
+const camera = new StateCamera(gl);
 
 // setup GLSL program
 const program = createProgramFromScripts(gl, [
@@ -35,9 +34,6 @@ const positionBuffer = gl.createBuffer();
 // Create a buffer to put colors in
 const colorBuffer = gl.createBuffer();
 
-const cameraAngleRadians = degToRad(0);
-const fieldOfViewRadians = degToRad(60);
-
 const main = () => {
   if (!gl) {
     console.log("No WebGL");
@@ -45,7 +41,7 @@ const main = () => {
     return;
   }
 
-  setupListener()
+  setupListener(obj, camera);
 
   // Bind it to ARRAY_BUFFER (think of it as ARRAY_BUFFER = positionBuffer)
   gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
@@ -123,7 +119,12 @@ const drawScene = () => {
 
     // starting with the view projection matrix
     // compute a matrix for the F
-    var matrix = m4.translate(camera.viewProjectionMatrix, x, 0, y);
+    var matrix = m4.translate(
+      camera.getViewProjectionMatrix(obj.projection),
+      x,
+      0,
+      y
+    );
 
     // Set the matrix.
     gl.uniformMatrix4fv(matrixLocation, false, matrix);

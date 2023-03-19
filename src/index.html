@@ -25,16 +25,16 @@
 
         <h3>PROJECTION</h3>
         <select id="projection">
+          <option value="perspective">Perspective</option>
           <option value="orthographic">Orthographic</option>
           <option value="oblique">Oblique</option>
-          <option value="perspective">Perspective</option>
         </select>
 
         <h3>VIEW</h3>
         <label for="view-angle">View Angle: </label>
         <input
           type="range"
-          id="view-x-rotation"
+          id="view-angle"
           min="-180"
           max="180"
           step="1"
@@ -44,11 +44,11 @@
         <label for="zoom">Zoom: </label>
         <input
           type="range"
-          id="view-y-rotation"
-          min="-180"
-          max="180"
+          id="view-zoom"
+          min="0"
+          max="360"
           step="1"
-          value="0"
+          value="180"
         />
 
         <h3>ROTATION</h3>

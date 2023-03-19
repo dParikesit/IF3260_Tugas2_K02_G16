@@ -17,11 +17,6 @@ class StateObj {
       scale: [1, 1, 1],
     };
 
-    this.view = {
-      rotation: degToRad(60),
-      radius: 0.1,
-    };
-
     this.projection = Projection.PERSPECTIVE;
   }
 
@@ -36,10 +31,59 @@ class StateObj {
     }
     return new Uint8Array(result);
   }
+
+  setDefault() {
+    this.color = [200, 70, 120];
+
+    this.transformation = {
+      translation: [0, 0, 0],
+      rotation: [0, 0, 0],
+      scale: [1, 1, 1],
+    };
+
+    this.projection = Projection.PERSPECTIVE;
+  }
+
+  setTranslationX(dist) {
+    this.transformation.translation[0] += dist;
+  }
+
+  setTranslationY(dist) {
+    this.transformation.translation[1] += dist;
+  }
+
+  setTranslationZ(dist) {
+    this.transformation.translation[2] += dist;
+  }
+
+  setRotationX(dist) {
+    this.transformation.rotation[0] += dist;
+    console.log(this.transformation);
+  }
+
+  setRotationY(dist) {
+    this.transformation.rotation[1] += dist;
+  }
+
+  setRotationZ(dist) {
+    this.transformation.rotation[2] += dist;
+  }
+
+  setScaleX(dist) {
+    this.transformation.scale[0] += dist;
+  }
+
+  setScaleY(dist) {
+    this.transformation.scale[1] += dist;
+  }
+
+  setScaleZ(dist) {
+    this.transformation.scale[2] += dist;
+  }
 }
 
 class StateCamera {
-  constructor(gl, projectionType) {
+  constructor(gl) {
     this.angle = degToRad(0);
     this.fieldOfView = degToRad(60);
     this.radius = 200;
@@ -49,34 +93,38 @@ class StateCamera {
     this.zFar = 2000;
 
     this.objPosition = [this.radius, 0, 0];
-
-    this.cameraMatrix = m4.yRotation(this.angle);
-    this.cameraMatrix = m4.translate(
-      this.cameraMatrix,
-      0,
-      0,
-      this.radius * 1.5
-    );
-    this.cameraPosition = [
-      this.cameraMatrix[12],
-      this.cameraMatrix[13],
-      this.cameraMatrix[14],
-    ];
-
     this.up = [0, 1, 0];
+  }
 
-    this.cameraMatrix = m4.lookAt(
-      this.cameraPosition,
-      this.objPosition,
-      this.up
-    );
+  setDefault() {
+    this.angle = degToRad(0);
+    this.fieldOfView = degToRad(60);
+    this.radius = 200;
 
-    this.viewMatrix = m4.inverse(this.cameraMatrix);
+    this.aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
+    this.zNear = 1;
+    this.zFar = 2000;
 
-    this.viewProjectionMatrix = m4.multiply(
+    this.objPosition = [this.radius, 0, 0];
+    this.up = [0, 1, 0];
+  }
+
+  getViewProjectionMatrix(projectionType) {
+    let cameraMatrix = m4.yRotation(this.angle);
+    cameraMatrix = m4.translate(cameraMatrix, 0, 0, this.radius * 1.5);
+
+    let cameraPosition = [cameraMatrix[12], cameraMatrix[13], cameraMatrix[14]];
+
+    cameraMatrix = m4.lookAt(cameraPosition, this.objPosition, this.up);
+
+    let viewMatrix = m4.inverse(cameraMatrix);
+
+    let viewProjectionMatrix = m4.multiply(
       this.getProjectionMatrix(projectionType),
-      this.viewMatrix
+      viewMatrix
     );
+
+    return viewProjectionMatrix;
   }
 
   getProjectionMatrix(projectionType) {
@@ -88,6 +136,18 @@ class StateCamera {
         this.zFar
       );
     }
+  }
+
+  setAngle(angle) {
+    this.angle = degToRad(angle);
+  }
+
+  setFoV(fov) {
+    this.fieldOfView = degToRad(fov);
+  }
+
+  setRadius(radius) {
+    this.radius = radius;
   }
 }
 
