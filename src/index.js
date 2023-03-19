@@ -2,15 +2,19 @@
 import { createProgramFromScripts } from "./utils/initializer.js";
 import { m4 } from "./utils/m4.js";
 import { degToRad } from "./utils/math.js";
+import { StateCamera, StateObj } from "./utils/state.js";
 import {
   resizeCanvasToDisplaySize,
   setColors,
-  setGeometry,
+  setGeometry
 } from "./utils/tools.js";
 import { setupListener } from "./utils/ui.js";
 
 const canvas = document.querySelector("#canvas");
 const gl = canvas.getContext("webgl");
+
+const obj = new StateObj();
+const camera = new StateCamera(gl, obj.projection);
 
 // setup GLSL program
 const program = createProgramFromScripts(gl, [
@@ -31,9 +35,6 @@ const positionBuffer = gl.createBuffer();
 // Create a buffer to put colors in
 const colorBuffer = gl.createBuffer();
 
-const translation = [-150, 0, -360];
-const rotation = [degToRad(190), degToRad(40), degToRad(320)];
-const scale = [1, 1, 1];
 const cameraAngleRadians = degToRad(0);
 const fieldOfViewRadians = degToRad(60);
 
@@ -49,12 +50,13 @@ const main = () => {
   // Bind it to ARRAY_BUFFER (think of it as ARRAY_BUFFER = positionBuffer)
   gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
   // Put geometry data into buffer
-  setGeometry(gl);
+  setGeometry(gl, obj.getModel());
 
   // Bind it to ARRAY_BUFFER (think of it as ARRAY_BUFFER = colorBuffer)
   gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
   // Put geometry data into buffer
-  setColors(gl);
+  setColors(gl, obj.getColor());
+
   drawScene();
 };
 
@@ -112,50 +114,16 @@ const drawScene = () => {
   var offset = 0; // start at the beginning of the buffer
   gl.vertexAttribPointer(colorLocation, size, type, normalize, stride, offset);
 
-  var numFs = 5;
-  var radius = 200;
-
-  // Compute the projection matrix
-  var aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
-  var zNear = 1;
-  var zFar = 2000;
-  var projectionMatrix = m4.perspective(
-    fieldOfViewRadians,
-    aspect,
-    zNear,
-    zFar
-  );
-
-  // Compute the position of the first F
-  var fPosition = [radius, 0, 0];
-
-  // Use matrix math to compute a position on a circle where
-  // the camera is
-  var cameraMatrix = m4.yRotation(cameraAngleRadians);
-  cameraMatrix = m4.translate(cameraMatrix, 0, 0, radius * 1.5);
-
-  // Get the camera's position from the matrix we computed
-  var cameraPosition = [cameraMatrix[12], cameraMatrix[13], cameraMatrix[14]];
-
-  var up = [0, 1, 0];
-
-  // Compute the camera's matrix using look at.
-  var cameraMatrix = m4.lookAt(cameraPosition, fPosition, up);
-
-  // Make a view matrix from the camera matrix
-  var viewMatrix = m4.inverse(cameraMatrix);
-
-  // Compute a view projection matrix
-  var viewProjectionMatrix = m4.multiply(projectionMatrix, viewMatrix);
+  var numFs = 1;
 
   for (var ii = 0; ii < numFs; ++ii) {
     var angle = (ii * Math.PI * 2) / numFs;
-    var x = Math.cos(angle) * radius;
-    var y = Math.sin(angle) * radius;
+    var x = Math.cos(angle) * camera.radius;
+    var y = Math.sin(angle) * camera.radius;
 
     // starting with the view projection matrix
     // compute a matrix for the F
-    var matrix = m4.translate(viewProjectionMatrix, x, 0, y);
+    var matrix = m4.translate(camera.viewProjectionMatrix, x, 0, y);
 
     // Set the matrix.
     gl.uniformMatrix4fv(matrixLocation, false, matrix);

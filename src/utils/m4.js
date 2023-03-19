@@ -1,4 +1,4 @@
-import { normalize, subtractVectors, cross } from "./math.js";
+import { cross, normalize, subtractVectors } from "./math.js";
 
 var m4 = {
 

@@ -28,4 +28,4 @@ function cross(a, b) {
   ];
 }
 
-export { radToDeg, degToRad, subtractVectors, normalize, cross}
+export { radToDeg, degToRad, subtractVectors, normalize, cross };
