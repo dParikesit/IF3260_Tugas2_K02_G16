@@ -56,7 +56,7 @@ const main = () => {
   drawScene();
 };
 
-const drawScene = () => {
+export const drawScene = () => {
   resizeCanvasToDisplaySize(gl.canvas);
 
   // Tell WebGL how to convert from clip space to pixels
