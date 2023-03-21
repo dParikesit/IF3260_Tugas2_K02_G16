@@ -45,40 +45,39 @@ class StateObj {
   }
 
   setTranslationX(dist) {
-    this.transformation.translation[0] += dist;
+    this.transformation.translation[0] = dist;
   }
 
   setTranslationY(dist) {
-    this.transformation.translation[1] += dist;
+    this.transformation.translation[1] = dist;
   }
 
   setTranslationZ(dist) {
-    this.transformation.translation[2] += dist;
+    this.transformation.translation[2] = dist;
   }
 
   setRotationX(dist) {
-    this.transformation.rotation[0] += dist;
-    console.log(this.transformation);
+    this.transformation.rotation[0] = dist;
   }
 
   setRotationY(dist) {
-    this.transformation.rotation[1] += dist;
+    this.transformation.rotation[1] = dist;
   }
 
   setRotationZ(dist) {
-    this.transformation.rotation[2] += dist;
+    this.transformation.rotation[2] = dist;
   }
 
   setScaleX(dist) {
-    this.transformation.scale[0] += dist;
+    this.transformation.scale[0] = dist;
   }
 
   setScaleY(dist) {
-    this.transformation.scale[1] += dist;
+    this.transformation.scale[1] = dist;
   }
 
   setScaleZ(dist) {
-    this.transformation.scale[2] += dist;
+    this.transformation.scale[2] = dist;
   }
 }
 
@@ -88,9 +87,7 @@ class StateCamera {
     this.fieldOfView = degToRad(60);
     this.radius = 200;
 
-    this.aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
-    this.zNear = 1;
-    this.zFar = 2000;
+    this.gl = gl
 
     this.objPosition = [this.radius, 0, 0];
     this.up = [0, 1, 0];
@@ -100,10 +97,6 @@ class StateCamera {
     this.angle = degToRad(0);
     this.fieldOfView = degToRad(60);
     this.radius = 200;
-
-    this.aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
-    this.zNear = 1;
-    this.zFar = 2000;
 
     this.objPosition = [this.radius, 0, 0];
     this.up = [0, 1, 0];
@@ -129,12 +122,12 @@ class StateCamera {
 
   getProjectionMatrix(projectionType) {
     if (projectionType === Projection.PERSPECTIVE) {
-      return m4.perspective(
-        this.fieldOfView,
-        this.aspect,
-        this.zNear,
-        this.zFar
-      );
+      let aspect = this.gl.canvas.clientWidth / this.gl.canvas.clientHeight;
+      return m4.perspective( this.fieldOfView, aspect, 1, 2000);
+    } else if (projectionType === Projection.ORTHOGRAPHIC) {
+      return m4.orthographic(this.gl.canvas.clientWidth, this.gl.canvas.clientHeight, 1, 2000);
+    } else {
+      return m4.oblique(this.gl.canvas.clientWidth, this.gl.canvas.clientHeight, 1, 2000);
     }
   }
 

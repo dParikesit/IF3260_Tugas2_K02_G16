@@ -28,4 +28,12 @@ function cross(a, b) {
   ];
 }
 
-export { radToDeg, degToRad, subtractVectors, normalize, cross };
+function cottheta(degree){
+  return 1 / Math.tan(degToRad(degree));
+}
+
+function cotphi(degree){
+  return 1 / Math.tan(degToRad(degree));
+}
+
+export { radToDeg, degToRad, subtractVectors, normalize, cross, cottheta, cotphi };

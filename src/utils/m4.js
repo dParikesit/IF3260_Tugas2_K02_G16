@@ -1,4 +1,4 @@
-import { cross, normalize, subtractVectors } from "./math.js";
+import { cotphi, cottheta, cross, degToRad, normalize, subtractVectors } from "./math.js";
 
 var m4 = {
 
@@ -31,14 +31,31 @@ var m4 = {
     ];
   },
 
-  projection: function(width, height, depth) {
-    // Note: This matrix flips the Y axis so 0 is at the top.
+  orthographic: function(width, height, depth){
     return [
-       2 / width, 0, 0, 0,
-       0, -2 / height, 0, 0,
-       0, 0, 2 / depth, 0,
-      -1, 1, 0, 1,
-    ];
+			2/width, 0, 0, 0,
+			0, 2/height, 0, 0,
+			0, 0, 2/depth, 0,
+			0, 0, 0, 1
+		];
+  },
+
+  oblique: function(width, height, depth){
+    let ortho = [
+			2/width, 0, 0, 0,
+			0, 2/height, 0, 0,
+			0, 0, 2/depth, 0,
+			0, 0, 0, 1
+		]
+
+    let factor = [
+			1, 0, 0, 0,
+			0, 1, 0, 0,
+			(-1*cottheta(64)), (-1*cotphi(64)), 1, 0,
+			0, 0, 0, 1
+		]
+
+    return this.multiply(ortho, factor);
   },
 
   multiply: function(a, b) {
@@ -120,9 +137,9 @@ var m4 = {
     var s = Math.sin(angleInRadians);
 
     return [
-      c, 0, -s, 0,
+      c, 0, s, 0,
       0, 1, 0, 0,
-      s, 0, c, 0,
+      -s, 0, c, 0,
       0, 0, 0, 1,
     ];
   },
