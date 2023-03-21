@@ -43,16 +43,7 @@ const main = () => {
 
   setupListener(obj, camera);
 
-  // Bind it to ARRAY_BUFFER (think of it as ARRAY_BUFFER = positionBuffer)
-  gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-  // Put geometry data into buffer
-  setGeometry(gl, obj.getModel());
-
-  // Bind it to ARRAY_BUFFER (think of it as ARRAY_BUFFER = colorBuffer)
-  gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-  // Put geometry data into buffer
-  setColors(gl, obj.getColor());
-
+  drawScene();
   drawScene();
 };
 
@@ -74,6 +65,17 @@ export const drawScene = () => {
 
   // Tell it to use our program (pair of shaders)
   gl.useProgram(program);
+
+  // Bind it to ARRAY_BUFFER (think of it as ARRAY_BUFFER = positionBuffer)
+  gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+  // Put geometry data into buffer
+
+  setGeometry(gl, obj);
+
+  // Bind it to ARRAY_BUFFER (think of it as ARRAY_BUFFER = colorBuffer)
+  gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+  // Put geometry data into buffer
+  setColors(gl, obj.getColor());
 
   // Turn on the position attribute
   gl.enableVertexAttribArray(positionLocation);
@@ -110,31 +112,17 @@ export const drawScene = () => {
   var offset = 0; // start at the beginning of the buffer
   gl.vertexAttribPointer(colorLocation, size, type, normalize, stride, offset);
 
-  var numFs = 1;
-
-  for (var ii = 0; ii < numFs; ++ii) {
-    var angle = (ii * Math.PI * 2) / numFs;
-    var x = Math.cos(angle) * camera.radius;
-    var y = Math.sin(angle) * camera.radius;
-
-    // starting with the view projection matrix
-    // compute a matrix for the F
-    var matrix = m4.translate(
-      camera.getViewProjectionMatrix(obj.projection),
-      x,
-      0,
-      y
-    );
-
-    // Set the matrix.
-    gl.uniformMatrix4fv(matrixLocation, false, matrix);
-
-    // Draw the geometry.
-    var primitiveType = gl.TRIANGLES;
-    var offset = 0;
-    var count = 16 * 6;
-    gl.drawArrays(primitiveType, offset, count);
-  }
+  var matrix = m4.translate(
+    camera.getViewProjectionMatrix(obj.projection),
+    0,
+    0,
+    0
+  );
+  gl.uniformMatrix4fv(matrixLocation, false, matrix);
+  var primitiveType = gl.TRIANGLES;
+  var offset = 0;
+  var count = 16 * 6;
+  gl.drawArrays(primitiveType, offset, count);
 };
 
 main();
