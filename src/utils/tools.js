@@ -19,7 +19,7 @@ function resizeCanvasToDisplaySize(canvas) {
 }
 
 // Fill the buffer with the values that define a letter 'F'.
-function setGeometry(gl, positions) {
+function setGeometry(gl, obj) {
   // Center the F around the origin and Flip it around. We do this because
   // we're in 3D now with and +Y is up where as before when we started with 2D
   // we had +Y as down.
@@ -27,9 +27,31 @@ function setGeometry(gl, positions) {
   // We could do by changing all the values above but I'm lazy.
   // We could also do it with a matrix at draw time but you should
   // never do stuff at draw time if you can do it at init time.
-  var matrix = m4.xRotation(Math.PI);
-  matrix = m4.translate(matrix, -50, -75, -15);
+  // var matrix = m4.xRotation(Math. PI);
+  // matrix = m4.translate(matrix, -50, -75, -15);
+  // matrix = m4.xRotate(matrix, 0.3);
+  
+  const positions = obj.getModel();
 
+  var matrix = m4.xRotation(obj.transformation.rotation[0]);
+  setPositions(positions, matrix);
+  
+  matrix = m4.yRotation(obj.transformation.rotation[1]);
+  setPositions(positions, matrix);
+
+  matrix = m4.zRotation(obj.transformation.rotation[2]);
+  setPositions(positions, matrix);
+
+  matrix = m4.translate(matrix, obj.transformation.translation[0], obj.transformation.translation[1], obj.transformation.translation[2]);
+  setPositions(positions, matrix);
+  
+  matrix = m4.scale(matrix, obj.transformation.scale[0], obj.transformation.scale[1], obj.transformation.scale[2]);
+  setPositions(positions, matrix);
+
+  gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
+}
+
+function setPositions(positions, matrix) {
   for (var ii = 0; ii < positions.length; ii += 3) {
     var vector = m4.vectorMultiply(
       [positions[ii + 0], positions[ii + 1], positions[ii + 2], 1],
@@ -39,8 +61,6 @@ function setGeometry(gl, positions) {
     positions[ii + 1] = vector[1];
     positions[ii + 2] = vector[2];
   }
-
-  gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
 }
 
 // Fill the buffer with colors for the 'F'.
