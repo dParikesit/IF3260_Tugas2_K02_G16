@@ -3,5 +3,3 @@ const Projection = Object.freeze({
   OBLIQUE: Symbol("oblique"),
   PERSPECTIVE: Symbol("perspective"),
 });
-
-export { Projection };

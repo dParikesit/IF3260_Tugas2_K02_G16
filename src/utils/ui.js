@@ -2,10 +2,21 @@ import { drawScene } from "../index.js";
 import { Projection } from "./enum.js";
 import { degToRad } from "./math.js";
 
-function importObjects() {
+function importObjects(e, obj) {
   console.log("Importing objects...");
-  document.getElementById("import").click();
-  drawScene();
+  const file = document.getElementById("import").files[0];
+  const reader = new FileReader();
+  if (!file) {
+    alert("There's no file to import!");
+    return;
+  }
+  reader.onload = (e) => {
+    const model = JSON.parse(e.target.result);
+    obj.setVertices(model.vertices);
+    obj.setIndices(model.indices);
+    drawScene();
+  };
+  reader.readAsText(file);
 }
 
 function exportObjects() {
@@ -127,7 +138,7 @@ export function setupListener(obj, cam) {
   const elemObjScaleY = document.getElementById("obj-y-scale");
   const elemObjScaleZ = document.getElementById("obj-z-scale");
 
-  elemImport.addEventListener("click", importObjects);
+  elemImport.addEventListener("click", (e) => importObjects(e, obj));
   elemExport.addEventListener("click", exportObjects);
   elemProjection.addEventListener("change", (e) => changeProjection(e, obj));
   elemViewAngle.addEventListener("input", (e) => changeViewAngle(e, cam));

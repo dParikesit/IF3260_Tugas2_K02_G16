@@ -1,8 +1,14 @@
-import { cotphi, cottheta, cross, degToRad, normalize, subtractVectors } from "./math.js";
+const m4 = {
+  identity: () => {
+    return [
+      1, 0, 0, 0,
+      0, 1, 0, 0,
+      0, 0, 1, 0,
+      0, 0, 0, 1,
+    ];
+  },
 
-var m4 = {
-
-  lookAt: function(cameraPosition, target, up) {
+  lookAt: (cameraPosition, target, up) => {
     var zAxis = normalize(
         subtractVectors(cameraPosition, target));
     var xAxis = normalize(cross(up, zAxis));
@@ -19,8 +25,8 @@ var m4 = {
     ];
   },
 
-  perspective: function(fieldOfViewInRadians, aspect, zNear, zFar) {
-    var f = Math.tan(Math.PI * 0.5 - 0.5 * fieldOfViewInRadians);
+  perspective: (fov, aspect, zNear, zFar) => {
+    var f = Math.tan(Math.PI * 0.5 - 0.5 * fov);
     var rangeInv = 1.0 / (zNear - zFar);
 
     return [
@@ -31,7 +37,11 @@ var m4 = {
     ];
   },
 
-  orthographic: function(width, height, depth){
+  orthographic: (left, right, bottom, top, near, far) => {
+    let width = right - left;
+    let height = top - bottom;
+    let depth = far - near;
+    
     return [
 			2/width, 0, 0, 0,
 			0, 2/height, 0, 0,
@@ -40,25 +50,19 @@ var m4 = {
 		];
   },
 
-  oblique: function(width, height, depth){
-    let ortho = [
-			2/width, 0, 0, 0,
-			0, 2/height, 0, 0,
-			0, 0, 2/depth, 0,
-			0, 0, 0, 1
-		]
+  oblique: (theta, phi) => {
+    const cottheta = 1 / Math.tan(theta);
+    const cotphi = 1 / Math.tan(phi);
 
-    let factor = [
+    return [
 			1, 0, 0, 0,
 			0, 1, 0, 0,
-			(-1*cottheta(64)), (-1*cotphi(64)), 1, 0,
+			-cottheta, -cotphi, 1, 0,
 			0, 0, 0, 1
-		]
-
-    return this.multiply(ortho, factor);
+		];
   },
 
-  multiply: function(a, b) {
+  multiply: (a, b) => {
     var a00 = a[0 * 4 + 0];
     var a01 = a[0 * 4 + 1];
     var a02 = a[0 * 4 + 2];
@@ -111,7 +115,8 @@ var m4 = {
     ];
   },
 
-  translation: function(tx, ty, tz) {
+
+  translation: (tx, ty, tz) => {
     return [
        1,  0,  0,  0,
        0,  1,  0,  0,
@@ -120,7 +125,7 @@ var m4 = {
     ];
   },
 
-  xRotation: function(angleInRadians) {
+  xRotation: (angleInRadians) => {
     var c = Math.cos(angleInRadians);
     var s = Math.sin(angleInRadians);
 
@@ -132,7 +137,7 @@ var m4 = {
     ];
   },
 
-  yRotation: function(angleInRadians) {
+  yRotation: (angleInRadians) => {
     var c = Math.cos(angleInRadians);
     var s = Math.sin(angleInRadians);
 
@@ -144,7 +149,7 @@ var m4 = {
     ];
   },
 
-  zRotation: function(angleInRadians) {
+  zRotation: (angleInRadians) => {
     var c = Math.cos(angleInRadians);
     var s = Math.sin(angleInRadians);
 
@@ -156,7 +161,7 @@ var m4 = {
     ];
   },
 
-  scaling: function(sx, sy, sz) {
+  scaling: (sx, sy, sz) => {
     return [
       sx, 0,  0,  0,
       0, sy,  0,  0,
@@ -165,27 +170,27 @@ var m4 = {
     ];
   },
 
-  translate: function(m, tx, ty, tz) {
+  translate: (m, tx, ty, tz) => {
     return m4.multiply(m, m4.translation(tx, ty, tz));
   },
 
-  xRotate: function(m, angleInRadians) {
+  xRotate: (m, angleInRadians) => {
     return m4.multiply(m, m4.xRotation(angleInRadians));
   },
 
-  yRotate: function(m, angleInRadians) {
+  yRotate: (m, angleInRadians) => {
     return m4.multiply(m, m4.yRotation(angleInRadians));
   },
 
-  zRotate: function(m, angleInRadians) {
+  zRotate: (m, angleInRadians) => {
     return m4.multiply(m, m4.zRotation(angleInRadians));
   },
 
-  scale: function(m, sx, sy, sz) {
+  scale: (m, sx, sy, sz) => {
     return m4.multiply(m, m4.scaling(sx, sy, sz));
   },
 
-  inverse: function(m) {
+  inverse: (m) => {
     var m00 = m[0 * 4 + 0];
     var m01 = m[0 * 4 + 1];
     var m02 = m[0 * 4 + 2];
@@ -270,7 +275,7 @@ var m4 = {
     ];
   },
 
-  vectorMultiply: function(v, m) {
+  vectorMultiply: (v, m) => {
     var dst = [];
     for (var i = 0; i < 4; ++i) {
       dst[i] = 0.0;
@@ -281,5 +286,3 @@ var m4 = {
     return dst;
   },
 }
-
-export { m4 };

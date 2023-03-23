@@ -1,16 +1,16 @@
-function radToDeg(r) {
+const radToDeg = (r) => {
   return (r * 180) / Math.PI;
 }
 
-function degToRad(d) {
+const degToRad = (d) => {
   return (d * Math.PI) / 180;
 }
 
-function subtractVectors(a, b) {
+const subtractVectors = (a, b) =>  {
   return [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
 }
 
-function normalize(v) {
+const normalize = (v) => {
   var length = Math.sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
   // make sure we don't divide by 0.
   if (length > 0.00001) {
@@ -20,20 +20,10 @@ function normalize(v) {
   }
 }
 
-function cross(a, b) {
+const cross = (a, b) => {
   return [
     a[1] * b[2] - a[2] * b[1],
     a[2] * b[0] - a[0] * b[2],
     a[0] * b[1] - a[1] * b[0],
   ];
 }
-
-function cottheta(degree){
-  return 1 / Math.tan(degToRad(degree));
-}
-
-function cotphi(degree){
-  return 1 / Math.tan(degToRad(degree));
-}
-
-export { radToDeg, degToRad, subtractVectors, normalize, cross, cottheta, cotphi };

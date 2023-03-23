@@ -1,38 +1,20 @@
-"use strict";
-import { createProgramFromScripts } from "./utils/initializer.js";
-import { m4 } from "./utils/m4.js";
-import { StateCamera, StateObj } from "./utils/state.js";
-import {
-  resizeCanvasToDisplaySize,
-  setColors,
-  setGeometry,
-} from "./utils/tools.js";
-import { setupListener } from "./utils/ui.js";
-
 const canvas = document.querySelector("#canvas");
 const gl = canvas.getContext("webgl");
-
-const obj = new StateObj();
-const camera = new StateCamera(gl);
-
-// setup GLSL program
+const obj = new Model();
+const camera = new Camera(gl);
 const program = createProgramFromScripts(gl, [
   "vertex-shader-3d",
   "fragment-shader-3d",
 ]);
-
-// look up where the vertex data needs to go.
-const positionLocation = gl.getAttribLocation(program, "a_position");
-const colorLocation = gl.getAttribLocation(program, "a_color");
-
-// lookup uniforms
-const matrixLocation = gl.getUniformLocation(program, "u_matrix");
-
-// Create a buffer to put positions in
+const a_position = gl.getAttribLocation(program, "a_position");
+const a_color = gl.getAttribLocation(program, "a_color");
+const u_viewMatrix = gl.getUniformLocation(program, "u_viewMatrix");
+const u_modelMatrix = gl.getUniformLocation(program, "u_modelMatrix");
+const u_projectionMatrix = gl.getUniformLocation(program, "u_projectionMatrix");
 const positionBuffer = gl.createBuffer();
-
-// Create a buffer to put colors in
 const colorBuffer = gl.createBuffer();
+const indexBuffer = gl.createBuffer();
+
 
 const main = () => {
   if (!gl) {
@@ -40,89 +22,180 @@ const main = () => {
     alert("WebGL isn't available");
     return;
   }
-
   setupListener(obj, camera);
-
-  drawScene();
   drawScene();
 };
 
-export const drawScene = () => {
+const drawScene = () => {
   resizeCanvasToDisplaySize(gl.canvas);
-
-  // Tell WebGL how to convert from clip space to pixels
-  gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-
-  // Clear the canvas AND the depth buffer.
-  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
-  // Turn on culling. By default backfacing triangles
-  // will be culled.
-  gl.enable(gl.CULL_FACE);
-
-  // Enable the depth buffer
-  gl.enable(gl.DEPTH_TEST);
-
-  // Tell it to use our program (pair of shaders)
   gl.useProgram(program);
+  gl.clearColor(0.0, 0.0, 0.0, 0.0);
+  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+  gl.enable(gl.DEPTH_TEST);
+  gl.enable(gl.CULL_FACE);
+  gl.enableVertexAttribArray(a_position);
+  gl.enableVertexAttribArray(a_color);
 
-  // Bind it to ARRAY_BUFFER (think of it as ARRAY_BUFFER = positionBuffer)
   gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-  // Put geometry data into buffer
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(obj.vertices), gl.STATIC_DRAW);   
+  gl.vertexAttribPointer(a_position, 3, gl.FLOAT, false, 0, 0);
 
-  setGeometry(gl, obj);
-
-  // Bind it to ARRAY_BUFFER (think of it as ARRAY_BUFFER = colorBuffer)
   gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-  // Put geometry data into buffer
-  setColors(gl, obj.getColor());
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(obj.getColors()), gl.STATIC_DRAW);
+  gl.vertexAttribPointer(a_color, 4, gl.FLOAT, false, 0, 0);
 
-  // Turn on the position attribute
-  gl.enableVertexAttribArray(positionLocation);
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+  gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(obj.indices), gl.STATIC_DRAW);
 
-  // Bind the position buffer.
-  gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+  gl.uniformMatrix4fv(u_projectionMatrix, gl.FALSE, new Float32Array(camera.getProjectionMatrix()));
+  gl.uniformMatrix4fv(u_viewMatrix, gl.FALSE, camera.getViewMatrix());
+  gl.uniformMatrix4fv(u_modelMatrix, gl.FALSE, obj.getModelMatrix());
 
-  // Tell the position attribute how to get data out of positionBuffer (ARRAY_BUFFER)
-  var size = 3; // 3 components per iteration
-  var type = gl.FLOAT; // the data is 32bit floats
-  var normalize = false; // don't normalize the data
-  var stride = 0; // 0 = move forward size * sizeof(type) each iteration to get the next position
-  var offset = 0; // start at the beginning of the buffer
-  gl.vertexAttribPointer(
-    positionLocation,
-    size,
-    type,
-    normalize,
-    stride,
-    offset
+  gl.drawElements(gl.TRIANGLES, obj.indices.length, gl.UNSIGNED_SHORT, 0);
+};
+
+const importObject = (e, obj) => {
+  console.log("Importing objects...");
+  const file = document.getElementById("import").files[0];
+  const reader = new FileReader();
+  if (!file) {
+    alert("There's no file to import!");
+    return;
+  }
+  reader.onload = (e) => {
+    const model = JSON.parse(e.target.result);
+    obj.setVertices(model.vertices);
+    obj.setIndices(model.indices);
+    drawScene();
+  };
+  reader.readAsText(file);
+};
+
+const exportObject = () => {
+  const text = document.getElementById("export").value;
+  console.log(`Exporting ${text}...`);
+  drawScene();
+};
+
+const changeProjection = (e, cam) => {
+  cam.setProjectionMatrix(e.target.value);
+  console.log(`Changing projection to ${e.target.value}...`);
+  drawScene();
+};
+
+const changeViewAngle = (e, cam) => {
+  const angle = parseInt(e.target.value);
+  cam.cameraAngle = degToRad(angle);
+  console.log(`Changing view angle to ${angle}...`);
+  drawScene();
+};
+
+const changeViewZoom = (e, cam) => {
+  const radius = e.target.value;
+  cam.cameraRadius = radius;
+  console.log(`Changing view zoom Y to ${radius}...`);
+  drawScene();
+};
+
+const changeObjRotationX = (e, obj) => {
+  const dist = parseInt(e.target.value);
+  obj.rotation[0] = degToRad(dist);
+  console.log(`Changing object rotation X to ${dist}...`);
+  drawScene();
+};
+
+const changeObjRotationY = (e, obj) => {
+  const dist = parseInt(e.target.value);
+  obj.rotation[1] = degToRad(dist);
+  console.log(`Changing object rotation Y to ${dist}...`);
+  drawScene();
+};
+
+const changeObjRotationZ = (e, obj) => {
+  const dist = parseInt(e.target.value);
+  obj.rotation[2] = degToRad(dist);
+  console.log(`Changing object rotation Z to ${dist}...`);
+  drawScene();
+};
+
+const changeObjTranslationX = (e, obj) => {
+  const dist = parseFloat(parseFloat(e.target.value).toFixed(2));
+  obj.translation[0] = dist;
+  console.log(`Changing object translation X to ${dist}...`);
+  drawScene();
+};
+
+const changeObjTranslationY = (e, obj) => {
+  const dist = parseFloat(parseFloat(e.target.value).toFixed(2));
+  obj.translation[1] = dist;
+  console.log(`Changing object translation Y to ${dist}...`);
+  drawScene();
+};
+
+const changeObjTranslationZ = (e, obj) => {
+  const dist = parseFloat(parseFloat(e.target.value).toFixed(2));
+  obj.translation[2] = dist;
+  console.log(`Changing object translation Z to ${dist}...`);
+  drawScene();
+};
+
+const changeObjScaleX = (e, obj) => {
+  const dist = parseFloat(parseFloat(e.target.value).toFixed(2));
+  obj.scale[0] = dist;
+  console.log(`Changing object scale X to ${dist}...`);
+  drawScene();
+};
+
+const changeObjScaleY = (e, obj) => {
+  const dist = parseFloat(parseFloat(e.target.value).toFixed(2));
+  obj.scale[1] = dist;
+  console.log(`Changing object scale Y to ${dist}...`);
+  drawScene();
+};
+
+const changeObjScaleZ = (e, obj) => {
+  const dist = parseFloat(parseFloat(e.target.value).toFixed(2));
+  obj.scale[2] = dist;
+  console.log(`Changing object scale Z to ${dist}...`);
+  drawScene();
+};
+
+const setupListener = (obj, cam) => {
+  const elemImport = document.getElementById("importButton");
+  const elemExport = document.getElementById("exportButton");
+  const elemProjection = document.getElementById("projection");
+  const elemViewAngle = document.getElementById("view-angle");
+  const elemViewZoom = document.getElementById("view-zoom");
+  const elemObjRotationX = document.getElementById("obj-x-rotation");
+  const elemObjRotationY = document.getElementById("obj-y-rotation");
+  const elemObjRotationZ = document.getElementById("obj-z-rotation");
+  const elemObjTranslationX = document.getElementById("obj-x-translation");
+  const elemObjTranslationY = document.getElementById("obj-y-translation");
+  const elemObjTranslationZ = document.getElementById("obj-z-translation");
+  const elemObjScaleX = document.getElementById("obj-x-scale");
+  const elemObjScaleY = document.getElementById("obj-y-scale");
+  const elemObjScaleZ = document.getElementById("obj-z-scale");
+
+  elemImport.addEventListener("click", (e) => importObject(e, obj));
+  elemExport.addEventListener("click", (e) => exportObject());
+  elemProjection.addEventListener("change", (e) => changeProjection(e, cam));
+  elemViewAngle.addEventListener("input", (e) => changeViewAngle(e, cam));
+  elemViewZoom.addEventListener("input", (e) => changeViewZoom(e, cam));
+  elemObjRotationX.addEventListener("input", (e) => changeObjRotationX(e, obj));
+  elemObjRotationY.addEventListener("input", (e) => changeObjRotationY(e, obj));
+  elemObjRotationZ.addEventListener("input", (e) => changeObjRotationZ(e, obj));
+  elemObjTranslationX.addEventListener("input", (e) =>
+    changeObjTranslationX(e, obj)
   );
-
-  // Turn on the color attribute
-  gl.enableVertexAttribArray(colorLocation);
-
-  // Bind the color buffer.
-  gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-
-  // Tell the attribute how to get data out of colorBuffer (ARRAY_BUFFER)
-  var size = 3; // 3 components per iteration
-  var type = gl.UNSIGNED_BYTE; // the data is 8bit unsigned values
-  var normalize = true; // normalize the data (convert from 0-255 to 0-1)
-  var stride = 0; // 0 = move forward size * sizeof(type) each iteration to get the next position
-  var offset = 0; // start at the beginning of the buffer
-  gl.vertexAttribPointer(colorLocation, size, type, normalize, stride, offset);
-
-  var matrix = m4.translate(
-    camera.getViewProjectionMatrix(obj.projection),
-    0,
-    0,
-    0
+  elemObjTranslationY.addEventListener("input", (e) =>
+    changeObjTranslationY(e, obj)
   );
-  gl.uniformMatrix4fv(matrixLocation, false, matrix);
-  var primitiveType = gl.TRIANGLES;
-  var offset = 0;
-  var count = 16 * 6;
-  gl.drawArrays(primitiveType, offset, count);
+  elemObjTranslationZ.addEventListener("input", (e) =>
+    changeObjTranslationZ(e, obj)
+  );
+  elemObjScaleX.addEventListener("input", (e) => changeObjScaleX(e, obj));
+  elemObjScaleY.addEventListener("input", (e) => changeObjScaleY(e, obj));
+  elemObjScaleZ.addEventListener("input", (e) => changeObjScaleZ(e, obj));
 };
 
 main();
