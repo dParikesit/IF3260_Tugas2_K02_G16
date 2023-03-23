@@ -15,6 +15,8 @@ const positionBuffer = gl.createBuffer();
 const colorBuffer = gl.createBuffer();
 const indexBuffer = gl.createBuffer();
 
+let animation = null;
+let animDirRight = true;
 
 const main = () => {
   if (!gl) {
@@ -160,6 +162,34 @@ const changeObjScaleZ = (e, obj) => {
   drawScene();
 };
 
+const animStart = (obj) => {
+  console.log("Starting animation...");
+  if(animation === null){
+    animation = setInterval(() => {
+      if (animDirRight === true) {
+        obj.rotation[1] += degToRad(1.8);
+      } else {
+        obj.rotation[1] -= degToRad(1.8);
+      }
+
+      if (obj.rotation[1] >= degToRad(360)) {
+        animDirRight = false;
+      } else if (obj.rotation[1] <= degToRad(-360)) {
+        animDirRight = true;
+      }
+      drawScene();
+    }, 5);
+  }
+}
+
+const animStop = () => {
+  console.log("Stopping animation...");
+  if (animation !== null) {
+    clearInterval(animation);
+    animation = null;
+  }
+}
+
 const setupListener = (obj, cam) => {
   const elemImport = document.getElementById("importButton");
   const elemExport = document.getElementById("exportButton");
@@ -175,6 +205,8 @@ const setupListener = (obj, cam) => {
   const elemObjScaleX = document.getElementById("obj-x-scale");
   const elemObjScaleY = document.getElementById("obj-y-scale");
   const elemObjScaleZ = document.getElementById("obj-z-scale");
+  const elemAnimStart = document.getElementById("anim-start");
+  const elemAnimStop = document.getElementById("anim-stop");
 
   elemImport.addEventListener("click", (e) => importObject(e, obj));
   elemExport.addEventListener("click", (e) => exportObject());
@@ -196,6 +228,8 @@ const setupListener = (obj, cam) => {
   elemObjScaleX.addEventListener("input", (e) => changeObjScaleX(e, obj));
   elemObjScaleY.addEventListener("input", (e) => changeObjScaleY(e, obj));
   elemObjScaleZ.addEventListener("input", (e) => changeObjScaleZ(e, obj));
+  elemAnimStart.addEventListener("click", () => animStart(obj));
+  elemAnimStop.addEventListener("click", () => animStop());
 };
 
 main();
