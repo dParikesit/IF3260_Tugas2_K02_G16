@@ -20,6 +20,18 @@ class Model {
     this.colors = [...colors]
   }
 
+  setTranslation(translation) {
+    this.translation = [...translation]
+  }
+
+  setRotation(rotation) {
+    this.rotation = [...rotation]
+  }
+
+  setScale(scale) {
+    this.scale = [...scale]
+  }
+
   setDefault() {
     this.vertices = []
     this.indices = []

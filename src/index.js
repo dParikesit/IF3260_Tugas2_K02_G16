@@ -66,17 +66,38 @@ const importObject = (e, obj) => {
   }
   reader.onload = (e) => {
     const model = JSON.parse(e.target.result);
+
     obj.setVertices(model.vertices);
     obj.setIndices(model.indices);
-    obj.setColors(model.color);
+    obj.setColors(model.colors);
+
+    if(model.translation) obj.setTranslation(model.translation);
+    if(model.rotation) obj.setRotation(model.rotation);
+    if(model.scale) obj.setScale(model.scale);
+
     drawScene();
   };
   reader.readAsText(file);
 };
 
-const exportObject = () => {
-  const text = document.getElementById("export").value;
-  console.log(`Exporting ${text}...`);
+const exportObject = (e, obj) => {
+  const filename = document.getElementById("export").value;
+  let modelStr = JSON.stringify({
+    vertices: obj.vertices,
+    indices: obj.indices,
+    colors: obj.colors,
+    translation: obj.translation,
+    rotation: obj.rotation,
+    scale: obj.scale,
+  });
+
+  let blob = new Blob([modelStr], { type: "application/json" });
+  let link = document.createElement("a");
+  link.href = window.URL.createObjectURL(blob);
+  link.download = filename;
+  link.click();
+
+  console.log(`Exporting ${filename}...`);
   drawScene();
 };
 
@@ -212,7 +233,7 @@ const setupListener = (obj, cam) => {
   const elemAnimStop = document.getElementById("anim-stop");
 
   elemImport.addEventListener("click", (e) => importObject(e, obj));
-  elemExport.addEventListener("click", (e) => exportObject());
+  elemExport.addEventListener("click", (e) => exportObject(e, obj));
   elemProjection.addEventListener("change", (e) => changeProjection(e, cam));
   elemViewAngle.addEventListener("input", (e) => changeViewAngle(e, cam));
   elemViewZoom.addEventListener("input", (e) => changeViewZoom(e, cam));
