@@ -54,7 +54,7 @@ const drawScene = () => {
   gl.vertexAttribPointer(a_position, 3, gl.FLOAT, false, 0, 0);
 
   gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-  gl.bufferData(gl.ARRAY_BUFFER, new Uint8Array(obj.getColors()), gl.STATIC_DRAW);
+  gl.bufferData(gl.ARRAY_BUFFER, new Uint8Array(obj.colors), gl.STATIC_DRAW);
   gl.vertexAttribPointer(a_color, 4, gl.UNSIGNED_BYTE, true, 0, 0);
 
   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
