@@ -40,13 +40,13 @@ const m4 = {
   orthographic: (left, right, bottom, top, near, far) => {
     let width = right - left;
     let height = top - bottom;
-    let depth = far - near;
+    let depth = near - far;
     
     return [
 			2/width, 0, 0, 0,
 			0, 2/height, 0, 0,
 			0, 0, 2/depth, 0,
-			0, 0, 0, 1
+			-(right+left) / (right-left), -(top+bottom) / (top-bottom), -(far+near) / (far-near), 1
 		];
   },
 
@@ -114,7 +114,15 @@ const m4 = {
       b30 * a03 + b31 * a13 + b32 * a23 + b33 * a33,
     ];
   },
-
+  
+  transpose: (m) => {
+    return [
+      m[0], m[4], m[8], m[12],
+      m[1], m[5], m[9], m[13],
+      m[2], m[6], m[10], m[14],
+      m[3], m[7], m[11], m[15],
+    ];
+  },
 
   translation: (tx, ty, tz) => {
     return [

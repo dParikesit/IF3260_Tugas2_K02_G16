@@ -21,8 +21,8 @@ class Camera {
     const right = 2;
     const bottom = -2;
     const top = 2;
-    const near = 1;
-    const far = 2000;
+    const near = -500;
+    const far = 500;
 
     const fov = degToRad(60);
     const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;

@@ -6,15 +6,24 @@ const program = createProgramFromScripts(gl, [
   "vertex-shader-3d",
   "fragment-shader-3d",
 ]);
+// Vertex shader
 const a_position = gl.getAttribLocation(program, "a_position");
 const a_color = gl.getAttribLocation(program, "a_color");
+const a_normal = gl.getAttribLocation(program, "a_normal");
+const u_isShading = gl.getUniformLocation(program, "u_isShading");
 const u_viewMatrix = gl.getUniformLocation(program, "u_viewMatrix");
 const u_modelMatrix = gl.getUniformLocation(program, "u_modelMatrix");
 const u_projectionMatrix = gl.getUniformLocation(program, "u_projectionMatrix");
+const u_worldInverseTranspose = gl.getUniformLocation(program, "u_worldInverseTranspose");
+
+// Fragment shader
+const u_reverseLightDirection = gl.getUniformLocation(program, "u_reverseLightDirection");
 const positionBuffer = gl.createBuffer();
 const colorBuffer = gl.createBuffer();
 const indexBuffer = gl.createBuffer();
+const normalBuffer = gl.createBuffer();
 
+let isShading = false;
 let animation = null;
 let animDirRight = true;
 
@@ -35,23 +44,35 @@ const drawScene = () => {
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   gl.enable(gl.DEPTH_TEST);
   gl.enable(gl.CULL_FACE);
+
   gl.enableVertexAttribArray(a_position);
   gl.enableVertexAttribArray(a_color);
+  gl.enableVertexAttribArray(a_normal);
 
   gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(obj.vertices), gl.STATIC_DRAW);   
   gl.vertexAttribPointer(a_position, 3, gl.FLOAT, false, 0, 0);
 
   gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(obj.colors), gl.STATIC_DRAW);
-  gl.vertexAttribPointer(a_color, 4, gl.FLOAT, false, 0, 0);
+  gl.bufferData(gl.ARRAY_BUFFER, new Uint8Array(obj.getColors()), gl.STATIC_DRAW);
+  gl.vertexAttribPointer(a_color, 4, gl.UNSIGNED_BYTE, true, 0, 0);
 
   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
   gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(obj.indices), gl.STATIC_DRAW);
 
+  console.log(obj.getNormalVector());
+
+  gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(obj.getNormalVector()), gl.STATIC_DRAW);
+  gl.vertexAttribPointer(a_normal, 3, gl.FLOAT, false, 0, 0);
+
+  gl.uniform1i(u_isShading, isShading);
   gl.uniformMatrix4fv(u_projectionMatrix, gl.FALSE, new Float32Array(camera.getProjectionMatrix()));
   gl.uniformMatrix4fv(u_viewMatrix, gl.FALSE, camera.getViewMatrix());
   gl.uniformMatrix4fv(u_modelMatrix, gl.FALSE, obj.getModelMatrix());
+  gl.uniformMatrix4fv(u_worldInverseTranspose, gl.FALSE, obj.getInverseTransposeModelMatrix());
+  gl.uniform3fv(u_reverseLightDirection, normalize([0, 0, 1.0]));
+
 
   gl.drawElements(gl.TRIANGLES, obj.indices.length, gl.UNSIGNED_SHORT, 0);
 };
@@ -100,6 +121,12 @@ const exportObject = (e, obj) => {
   console.log(`Exporting ${filename}...`);
   drawScene();
 };
+
+const changeShading = (e) => {
+  isShading = e.target.checked;
+  console.log(`Changing shading to ${isShading}...`);
+  drawScene();
+}
 
 const changeProjection = (e, cam) => {
   cam.setProjectionMatrix(e.target.value);
@@ -217,6 +244,7 @@ const animStop = () => {
 const setupListener = (obj, cam) => {
   const elemImport = document.getElementById("importButton");
   const elemExport = document.getElementById("exportButton");
+  const elemShading = document.getElementById("shading");
   const elemProjection = document.getElementById("projection");
   const elemViewAngle = document.getElementById("view-angle");
   const elemViewZoom = document.getElementById("view-zoom");
@@ -233,7 +261,8 @@ const setupListener = (obj, cam) => {
   const elemAnimStop = document.getElementById("anim-stop");
 
   elemImport.addEventListener("click", (e) => importObject(e, obj));
-  elemExport.addEventListener("click", (e) => exportObject(e, obj));
+  elemExport.addEventListener("click", (e) => exportObject());
+  elemShading.addEventListener("change", (e) => changeShading(e));
   elemProjection.addEventListener("change", (e) => changeProjection(e, cam));
   elemViewAngle.addEventListener("input", (e) => changeViewAngle(e, cam));
   elemViewZoom.addEventListener("input", (e) => changeViewZoom(e, cam));
@@ -249,6 +278,7 @@ const setupListener = (obj, cam) => {
   elemObjTranslationZ.addEventListener("input", (e) =>
     changeObjTranslationZ(e, obj)
   );
+  
   elemObjScaleX.addEventListener("input", (e) => changeObjScaleX(e, obj));
   elemObjScaleY.addEventListener("input", (e) => changeObjScaleY(e, obj));
   elemObjScaleZ.addEventListener("input", (e) => changeObjScaleZ(e, obj));
