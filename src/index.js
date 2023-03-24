@@ -196,9 +196,9 @@ const animStart = (obj, slider) => {
 
       slider.value = radToDeg(obj.rotation[1]);
 
-      if (obj.rotation[1] >= degToRad(360)) {
+      if (obj.rotation[1] >= degToRad(180)) {
         animDirRight = false;
-      } else if (obj.rotation[1] <= degToRad(-360)) {
+      } else if (obj.rotation[1] <= degToRad(-180)) {
         animDirRight = true;
       }
       drawScene();
