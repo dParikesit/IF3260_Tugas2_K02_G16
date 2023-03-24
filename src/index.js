@@ -163,7 +163,7 @@ const changeObjScaleZ = (e, obj) => {
   drawScene();
 };
 
-const animStart = (obj) => {
+const animStart = (obj, slider) => {
   console.log("Starting animation...");
   if(animation === null){
     animation = setInterval(() => {
@@ -172,6 +172,8 @@ const animStart = (obj) => {
       } else {
         obj.rotation[1] -= degToRad(1.8);
       }
+
+      slider.value = radToDeg(obj.rotation[1]);
 
       if (obj.rotation[1] >= degToRad(360)) {
         animDirRight = false;
@@ -229,7 +231,7 @@ const setupListener = (obj, cam) => {
   elemObjScaleX.addEventListener("input", (e) => changeObjScaleX(e, obj));
   elemObjScaleY.addEventListener("input", (e) => changeObjScaleY(e, obj));
   elemObjScaleZ.addEventListener("input", (e) => changeObjScaleZ(e, obj));
-  elemAnimStart.addEventListener("click", () => animStart(obj));
+  elemAnimStart.addEventListener("click", () => animStart(obj, elemObjRotationY));
   elemAnimStop.addEventListener("click", () => animStop());
 };
 
