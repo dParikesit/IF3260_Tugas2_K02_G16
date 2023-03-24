@@ -2,18 +2,10 @@ class Model {
   constructor() {
     this.vertices = []
     this.indices = []
-    this.color = [0.5, 0, 0, 1];
+    this.colors = [];
     this.translation = [0, 0, 0];
     this.rotation = [0, 0, 0];
     this.scale = [1, 1, 1];
-  }
-
-  getColors() {
-    const result = [];
-    for (let i = 0; i < this.vertices.length / 3; i++) {
-      result.push(...this.color);
-    }
-    return result;
   }
 
   setVertices(vertices) {
@@ -24,10 +16,14 @@ class Model {
     this.indices = [...indices]
   }
 
+  setColors(colors) {
+    this.colors = [...colors]
+  }
+
   setDefault() {
     this.vertices = []
     this.indices = []
-    this.color = [1, 0, 0, 1];
+    this.colors = [];
     this.translation = [0, 0, 0];
     this.rotation = [0, 0, 0];
     this.scale = [1, 1, 1];

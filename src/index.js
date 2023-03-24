@@ -43,7 +43,7 @@ const drawScene = () => {
   gl.vertexAttribPointer(a_position, 3, gl.FLOAT, false, 0, 0);
 
   gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(obj.getColors()), gl.STATIC_DRAW);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(obj.colors), gl.STATIC_DRAW);
   gl.vertexAttribPointer(a_color, 4, gl.FLOAT, false, 0, 0);
 
   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
@@ -68,6 +68,7 @@ const importObject = (e, obj) => {
     const model = JSON.parse(e.target.result);
     obj.setVertices(model.vertices);
     obj.setIndices(model.indices);
+    obj.setColors(model.color);
     drawScene();
   };
   reader.readAsText(file);
