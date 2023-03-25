@@ -1,9 +1,10 @@
 # IF3260_Tugas2_K02_G16
 
 ## How to run
-1. Double click the `index.html`
-2. Choose the model file in `test` folder (cube automatically loaded as initial model)
-3. Enjoy using the features 🤓👍
+1. Clone/Download the program from this repository 
+2. Double click the `index.html`
+3. Choose the model file in `test` folder (cube automatically loaded as initial model)
+4. Enjoy using the features 🤓👍
 
 ## Features
 - Load file
