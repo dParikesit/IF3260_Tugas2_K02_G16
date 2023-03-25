@@ -144,6 +144,10 @@ const importObject = () => {
     obj.setColors(model.colors);
     obj.calculateCenter();
 
+    resetView();
+    resetRotation();
+    resetTranslation();
+    resetScale();
     drawScene();
   };
   reader.readAsText(file);
@@ -185,9 +189,10 @@ const changeShading = (e) => {
 };
 
 const resetView = () => {
-  camera.resetView(elemProjection.value);
+  camera.resetView();
   elemCameraAngle.value = 0;
   elemCameraRadius.value = 5;
+  changeProjection({ target: { value: elemProjection.value } });
   console.log("Resetting camera...");
   drawScene();
 };

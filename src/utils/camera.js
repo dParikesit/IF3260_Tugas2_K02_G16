@@ -9,11 +9,10 @@ class Camera {
     this.setProjectionMatrix("perspective");
   }
 
-  resetView(projection) {
+  resetView() {
     this.cameraAngle = 0;
     this.cameraRadius = 5;
     this.orthoRadius = 0;
-    this.setProjectionMatrix(projection);
   }
 
   setProjectionMatrix(projection) {
@@ -32,11 +31,6 @@ class Camera {
 
     const theta = degToRad(60);
     const phi = degToRad(60);
-
-    console.log(left + this.orthoRadius);
-    console.log(right - this.orthoRadius);
-    console.log(bottom + this.orthoRadius);
-    console.log(top - this.orthoRadius);
 
     switch (projection) {
       case "orthographic":
