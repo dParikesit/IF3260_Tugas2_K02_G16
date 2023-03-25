@@ -8,12 +8,9 @@ class Camera {
     this.setProjectionMatrix("perspective");
   }
 
-  setDefault() {
+  resetView() {
     this.cameraAngle = 0;
     this.cameraRadius = 5;
-    this.shadingMode = false;
-    this.projectionMatrix = [];
-    this.setProjectionMatrix("perspective");
   }
 
   setProjectionMatrix(projection) {
@@ -55,14 +52,14 @@ class Camera {
     }
   }
 
-  getProjectionMatrix(){
-    return [...this.projectionMatrix]
+  getProjectionMatrix() {
+    return [...this.projectionMatrix];
   }
 
   getViewMatrix() {
     let cameraMatrix = m4.yRotation(this.cameraAngle);
     cameraMatrix = m4.translate(cameraMatrix, 0, 0, this.cameraRadius);
-    
+
     let cameraPosition = [cameraMatrix[12], cameraMatrix[13], cameraMatrix[14]];
     const target = [0, 0, 0];
     const up = [0, 1, 0];

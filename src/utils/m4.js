@@ -115,6 +115,15 @@ const m4 = {
     ];
   },
   
+  multiply3: (a, b) =>{
+    return [
+      a[0] * b[0] + a[1] * b[4] + a[2] * b[8] + a[3] * b[12],
+      a[0] * b[1] + a[1] * b[5] + a[2] * b[9] + a[3] * b[13],
+      a[0] * b[2] + a[1] * b[6] + a[2] * b[10] + a[3] * b[14],
+      a[0] * b[3] + a[1] * b[7] + a[2] * b[11] + a[3] * b[15],
+    ]
+  },
+
   transpose: (m) => {
     return [
       m[0], m[4], m[8], m[12],
@@ -283,14 +292,4 @@ const m4 = {
     ];
   },
 
-  vectorMultiply: (v, m) => {
-    var dst = [];
-    for (var i = 0; i < 4; ++i) {
-      dst[i] = 0.0;
-      for (var j = 0; j < 4; ++j) {
-        dst[i] += v[j] * m[j * 4 + i];
-      }
-    }
-    return dst;
-  },
 }

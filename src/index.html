@@ -10,7 +10,7 @@
   <body>
     <div class="container">
       <div class="canvas-container">
-        <canvas id="canvas" width="600" height="600">
+        <canvas id="canvas" width="700" height="700">
           Oops ... your browser doesn't support the HTML5 canvas element
         </canvas>
       </div>
@@ -22,10 +22,6 @@
         <button id="importButton">Import</button>
         <input type="text" id="export" placeholder="Enter file name" />
         <button id="exportButton">Export</button>
-
-        <h3>RESET</h3>
-        <button id="reset">Reset</button>
-
         <h3>SHADING</h3>
         <div>
           <input type="checkbox" id="shading" />
@@ -39,31 +35,38 @@
         </select>
 
         <h3>VIEW</h3>
-        <label for="view-angle">View Angle: </label>
+        <div>
+          <button id="reset-view">Reset View</button>
+        </div>
+        <label for="camera-angle">Camera Angle: </label>
         <div>
           <input
             type="range"
-            id="view-angle"
+            id="camera-angle"
             min="-360"
             max="360"
             step="1"
             value="0"
           />
         </div>
-        <label for="zoom">Zoom: </label>
+        <label for="camera-radius">Camera Radius: </label>
         <div>
           <input
             type="range"
-            id="view-zoom"
+            id="camera-radius"
             min="0"
             max="10"
-            step="0.0001"
+            step="0.1"
             value="5"
           />
         </div>
-        <h3>ROTATION</h3>
+        <h3>TRANSFORMATION</h3>
+        <div>
+          <button id="reset-rotation">Reset Rotation</button>
+        </div>
+        <label>Rotation:</label>
         <div class="flex-row">
-          <label for="x-rotation">dx: </label>
+          <label for="x-rotation">rx: </label>
           <input
             type="range"
             id="obj-x-rotation"
@@ -74,7 +77,7 @@
           />
         </div>
         <div class="flex-row">
-          <label for="y-rotation">dy: </label>
+          <label for="y-rotation">ry: </label>
           <input
             type="range"
             id="obj-y-rotation"
@@ -85,7 +88,7 @@
           />
         </div>
         <div class="flex-row">
-          <label for="z-rotation">dz: </label>
+          <label for="z-rotation">rz: </label>
           <input
             type="range"
             id="obj-z-rotation"
@@ -95,70 +98,78 @@
             value="0"
           />
         </div>
-        <h3>TRANSLATION</h3>
+        <br />
+        <div>
+          <button id="reset-translation">Reset Translation</button>
+        </div>
+        <label>Translation:</label>
         <div class="flex-row">
-          <label for="x-translation">dx: </label>
+          <label for="x-translation">tx: </label>
           <input
             type="range"
             id="obj-x-translation"
-            min="-10"
-            max="10"
+            min="-5"
+            max="5"
             step="0.01"
             value="0"
           />
         </div>
         <div class="flex-row">
-          <label for="y-translation">dy: </label>
+          <label for="y-translation">ty: </label>
           <input
             type="range"
             id="obj-y-translation"
-            min="-10"
-            max="10"
+            min="-5"
+            max="5"
             step="0.01"
             value="0"
           />
         </div>
         <div class="flex-row">
-          <label for="z-translation">dz: </label>
+          <label for="z-translation">tz: </label>
           <input
             type="range"
             id="obj-z-translation"
-            min="-10"
-            max="10"
+            min="-5"
+            max="5"
             step="0.01"
             value="0"
           />
         </div>
-        <h3>SCALING</h3>
+        <br />
+        <div>
+          <button id="reset-scale">Reset Scale</button>
+        </div>
+        <label>Scale:</label>
         <div class="flex-row">
-          <label for="x-scale">dx: </label>
+          <label for="x-scale">sx: </label>
           <input
             type="range"
             id="obj-x-scale"
-            min="-2"
-            max="2"
+            min="0"
+            max="5"
             step="0.01"
             value="1"
           />
         </div>
         <div class="flex-row">
-          <label for="y-scale">dy: </label>
+          <label for="y-scale">sy: </label>
           <input
             type="range"
             id="obj-y-scale"
-            min="-2"
-            max="2"
+            min="0"
+            max="5"
             step="0.01"
             value="1"
           />
         </div>
         <div class="flex-row">
-          <label for="z-scale">dz: </label>
+          <label for="z-scale">sz: </label>
           <input
             type="range"
             id="obj-z-scale"
-            min="-2"
-            max="2"
+            min="0"
+            max="5"
             step="0.01"
             value="1"
           />
@@ -203,26 +214,32 @@
               <li>
                 Projection
                 <ul>
-                  <li>Klik item dropdown untuk mengubah jenis projection yang dilakukan</li>
+                  <li>
+                    Klik item dropdown untuk mengubah jenis projection yang
+                    dilakukan
+                  </li>
                 </ul>
               </li>
               <li>
                 View, Rotation, Translation, Scaling
                 <ul>
-                  <li>Geser slider untuk melakukan transformasi camera dan object</li>
+                  <li>
+                    Geser slider untuk melakukan transformasi camera dan object
+                  </li>
                 </ul>
               </li>
               <li>
                 Animation
                 <ul>
-                  <li>Klik start untuk mulai animasi rotasi terhadap sumbu y</li>
+                  <li>
+                    Klik start untuk mulai animasi rotasi terhadap sumbu y
+                  </li>
                   <li>Klik stop untuk menghentikan animasi</li>
                 </ul>
               </li>
             </ul>
           </div>
         </div>
-
       </div>
     </div>
   </body>

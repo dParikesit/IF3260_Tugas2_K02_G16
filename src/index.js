@@ -14,14 +14,46 @@ const u_isShading = gl.getUniformLocation(program, "u_isShading");
 const u_viewMatrix = gl.getUniformLocation(program, "u_viewMatrix");
 const u_modelMatrix = gl.getUniformLocation(program, "u_modelMatrix");
 const u_projectionMatrix = gl.getUniformLocation(program, "u_projectionMatrix");
-const u_worldInverseTranspose = gl.getUniformLocation(program, "u_worldInverseTranspose");
+const u_worldInverseTranspose = gl.getUniformLocation(
+  program,
+  "u_worldInverseTranspose"
+);
 
 // Fragment shader
-const u_reverseLightDirection = gl.getUniformLocation(program, "u_reverseLightDirection");
+const u_reverseLightDirection = gl.getUniformLocation(
+  program,
+  "u_reverseLightDirection"
+);
 const positionBuffer = gl.createBuffer();
 const colorBuffer = gl.createBuffer();
 const indexBuffer = gl.createBuffer();
 const normalBuffer = gl.createBuffer();
+
+// HTML Element
+const elemImport = document.getElementById("importButton");
+const elemExport = document.getElementById("exportButton");
+const elemShading = document.getElementById("shading");
+const elemProjection = document.getElementById("projection");
+const elemResetView = document.getElementById("reset-view");
+const elemResetRotation = document.getElementById("reset-rotation");
+const elemResetTranslation = document.getElementById("reset-translation");
+const elemResetScale = document.getElementById("reset-scale");
+const elemCameraAngle = document.getElementById("camera-angle");
+const elemCameraRadius = document.getElementById("camera-radius");
+const elemObjRotationX = document.getElementById("obj-x-rotation");
+const elemObjRotationY = document.getElementById("obj-y-rotation");
+const elemObjRotationZ = document.getElementById("obj-z-rotation");
+const elemObjTranslationX = document.getElementById("obj-x-translation");
+const elemObjTranslationY = document.getElementById("obj-y-translation");
+const elemObjTranslationZ = document.getElementById("obj-z-translation");
+const elemObjScaleX = document.getElementById("obj-x-scale");
+const elemObjScaleY = document.getElementById("obj-y-scale");
+const elemObjScaleZ = document.getElementById("obj-z-scale");
+const elemAnimStart = document.getElementById("anim-start");
+const elemAnimStop = document.getElementById("anim-stop");
+const elemReset = document.getElementById("reset");
+const elemModal = document.getElementById("modal");
+const elemClose = document.getElementById("close");
 
 let isShading = false;
 let animation = null;
@@ -33,7 +65,8 @@ const main = () => {
     alert("WebGL isn't available");
     return;
   }
-  setupListener(obj, camera);
+
+  setupListener();
   drawScene();
 };
 
@@ -50,7 +83,11 @@ const drawScene = () => {
   gl.enableVertexAttribArray(a_normal);
 
   gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(obj.vertices), gl.STATIC_DRAW);   
+  gl.bufferData(
+    gl.ARRAY_BUFFER,
+    new Float32Array(obj.vertices),
+    gl.STATIC_DRAW
+  );
   gl.vertexAttribPointer(a_position, 3, gl.FLOAT, false, 0, 0);
 
   gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
@@ -58,26 +95,44 @@ const drawScene = () => {
   gl.vertexAttribPointer(a_color, 4, gl.UNSIGNED_BYTE, true, 0, 0);
 
   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
-  gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(obj.indices), gl.STATIC_DRAW);
-
-  console.log(obj.getNormalVector());
+  gl.bufferData(
+    gl.ELEMENT_ARRAY_BUFFER,
+    new Uint16Array(obj.indices),
+    gl.STATIC_DRAW
+  );
 
   gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(obj.getNormalVector()), gl.STATIC_DRAW);
+  gl.bufferData(
+    gl.ARRAY_BUFFER,
+    new Float32Array(obj.getNormalVector()),
+    gl.STATIC_DRAW
+  );
   gl.vertexAttribPointer(a_normal, 3, gl.FLOAT, false, 0, 0);
 
   gl.uniform1i(u_isShading, isShading);
-  gl.uniformMatrix4fv(u_projectionMatrix, gl.FALSE, new Float32Array(camera.getProjectionMatrix()));
+  gl.uniformMatrix4fv(
+    u_projectionMatrix,
+    gl.FALSE,
+    new Float32Array(camera.getProjectionMatrix())
+  );
   gl.uniformMatrix4fv(u_viewMatrix, gl.FALSE, camera.getViewMatrix());
   gl.uniformMatrix4fv(u_modelMatrix, gl.FALSE, obj.getModelMatrix());
-  gl.uniformMatrix4fv(u_worldInverseTranspose, gl.FALSE, obj.getInverseTransposeModelMatrix());
-  gl.uniform3fv(u_reverseLightDirection, normalize([0, 0, 1.0]));
-
+  gl.uniformMatrix4fv(
+    u_worldInverseTranspose,
+    gl.FALSE,
+    obj.getInverseTransposeModelMatrix()
+  );
+  gl.uniform3fv(u_reverseLightDirection, normalize([0.4, 0.5, 1.0]));
 
   gl.drawElements(gl.TRIANGLES, obj.indices.length, gl.UNSIGNED_SHORT, 0);
+
+  let a = [2, 2, 2, 2]
+  let b = obj.getModelMatrix();
+  a = m4.multiply3(a, b);
+    console.log(a)
 };
 
-const importObject = (e, obj) => {
+const importObject = () => {
   console.log("Importing objects...");
   const file = document.getElementById("import").files[0];
   const reader = new FileReader();
@@ -91,29 +146,25 @@ const importObject = (e, obj) => {
     obj.setVertices(model.vertices);
     obj.setIndices(model.indices);
     obj.setColors(model.colors);
-
-    if(model.translation) obj.setTranslation(model.translation);
-    if(model.rotation) obj.setRotation(model.rotation);
-    if(model.scale) obj.setScale(model.scale);
+    obj.calculateCenter();
 
     drawScene();
   };
   reader.readAsText(file);
 };
 
-const exportObject = (e, obj) => {
+const exportObject = () => {
   let filename = document.getElementById("export").value;
   if (filename === "") {
-    filename="Object";
+    filename = "newObject";
   }
 
+  console.log(obj.getSaveVertices());
+
   let modelStr = JSON.stringify({
-    vertices: obj.vertices,
+    vertices: obj.getSaveVertices(),
     indices: obj.indices,
     colors: obj.colors,
-    translation: obj.translation,
-    rotation: obj.rotation,
-    scale: obj.scale,
   });
 
   let blob = new Blob([modelStr], { type: "application/json" });
@@ -123,119 +174,117 @@ const exportObject = (e, obj) => {
   link.click();
 
   console.log(`Exporting ${filename}...`);
-  drawScene();
 };
 
 const changeShading = (e) => {
   isShading = e.target.checked;
   console.log(`Changing shading to ${isShading}...`);
   drawScene();
-}
+};
 
-const changeProjection = (e, cam) => {
-  cam.setProjectionMatrix(e.target.value);
+const resetView = () => {
+  camera.resetView();
+  elemCameraAngle.value = 0;
+  elemCameraRadius.value = 5;
+  console.log("Resetting camera...");
+  drawScene();
+};
+
+const changeProjection = (e) => {
+  camera.setProjectionMatrix(e.target.value);
   console.log(`Changing projection to ${e.target.value}...`);
   drawScene();
 };
 
-const changeViewAngle = (e, cam) => {
-  const angle = parseInt(e.target.value);
-  cam.cameraAngle = degToRad(angle);
-  console.log(`Changing view angle to ${angle}...`);
+const changeCameraAngle = (e) => {
+  camera.cameraAngle = degToRad(e.target.value);
+  console.log(`Changing view angle to ${e.target.value}...`);
   drawScene();
 };
 
-const changeViewZoom = (e, cam) => {
+const changeCameraRadius = (e) => {
   const radius = e.target.value;
-  cam.cameraRadius = radius;
+  camera.cameraRadius = radius;
   console.log(`Changing view zoom Y to ${radius}...`);
   drawScene();
 };
 
-const changeObjRotationX = (e, obj) => {
-  const dist = parseInt(e.target.value);
-  obj.rotation[0] = degToRad(dist);
-  console.log(`Changing object rotation X to ${dist}...`);
+const changeObjRotationX = (e) => {
+  obj.rotation[0] = degToRad(e.target.value);
+  console.log(`Changing object rotation X to ${e.target.value}...`);
   drawScene();
 };
 
-const changeObjRotationY = (e, obj) => {
-  const dist = parseInt(e.target.value);
-  obj.rotation[1] = degToRad(dist);
-  console.log(`Changing object rotation Y to ${dist}...`);
+const changeObjRotationY = (e) => {
+  obj.rotation[1] = degToRad(e.target.value);
+  console.log(`Changing object rotation Y to ${e.target.value}...`);
   drawScene();
 };
 
-const changeObjRotationZ = (e, obj) => {
-  const dist = parseInt(e.target.value);
-  obj.rotation[2] = degToRad(dist);
-  console.log(`Changing object rotation Z to ${dist}...`);
+const changeObjRotationZ = (e) => {
+  obj.rotation[2] = degToRad(e.target.value);
+  console.log(`Changing object rotation Z to ${e.target.value}...`);
   drawScene();
 };
 
-const changeObjTranslationX = (e, obj) => {
-  const dist = parseFloat(parseFloat(e.target.value).toFixed(2));
-  obj.translation[0] = dist;
-  console.log(`Changing object translation X to ${dist}...`);
+const changeObjTranslationX = (e) => {
+  obj.translation[0] = e.target.value;
+  console.log(`Changing object translation X to ${e.target.value}...`);
   drawScene();
 };
 
-const changeObjTranslationY = (e, obj) => {
-  const dist = parseFloat(parseFloat(e.target.value).toFixed(2));
-  obj.translation[1] = dist;
-  console.log(`Changing object translation Y to ${dist}...`);
+const changeObjTranslationY = (e) => {
+  obj.translation[1] = e.target.value;
+  console.log(`Changing object translation Y to ${e.target.value}...`);
   drawScene();
 };
 
-const changeObjTranslationZ = (e, obj) => {
-  const dist = parseFloat(parseFloat(e.target.value).toFixed(2));
-  obj.translation[2] = dist;
-  console.log(`Changing object translation Z to ${dist}...`);
+const changeObjTranslationZ = (e) => {
+  obj.translation[2] = e.target.value;
+  console.log(`Changing object translation Z to ${e.target.value}...`);
   drawScene();
 };
 
-const changeObjScaleX = (e, obj) => {
-  const dist = parseFloat(parseFloat(e.target.value).toFixed(2));
-  obj.scale[0] = dist;
-  console.log(`Changing object scale X to ${dist}...`);
+const changeObjScaleX = (e) => {
+  obj.scale[0] = e.target.value;
+  console.log(`Changing object scale X to ${e.target.value}...`);
   drawScene();
 };
 
-const changeObjScaleY = (e, obj) => {
-  const dist = parseFloat(parseFloat(e.target.value).toFixed(2));
-  obj.scale[1] = dist;
-  console.log(`Changing object scale Y to ${dist}...`);
+const changeObjScaleY = (e) => {
+  obj.scale[1] = e.target.value;
+  console.log(`Changing object scale Y to ${e.target.value}...`);
   drawScene();
 };
 
-const changeObjScaleZ = (e, obj) => {
-  const dist = parseFloat(parseFloat(e.target.value).toFixed(2));
-  obj.scale[2] = dist;
-  console.log(`Changing object scale Z to ${dist}...`);
+const changeObjScaleZ = (e) => {
+  obj.scale[2] = e.target.value;
+  console.log(`Changing object scale Z to ${e.target.value}...`);
   drawScene();
 };
 
-const animStart = (obj, slider) => {
+const animStart = () => {
   console.log("Starting animation...");
-  if(animation === null){
+  if (animation === null) {
     animation = setInterval(() => {
-      if (animDirRight === true) {
-        obj.rotation[1] += degToRad(1.8);
-      } else {
-        obj.rotation[1] -= degToRad(1.8);
-      }
+      console.log("Animating...");
 
-      slider.value = radToDeg(obj.rotation[1]);
+      console.log("x", elemObjRotationX.value);
+      console.log("y", elemObjRotationY.value);
 
-      if (obj.rotation[1] >= degToRad(180)) {
-        animDirRight = false;
-      } else if (obj.rotation[1] <= degToRad(-180)) {
-        animDirRight = true;
-      }
+      newRotationX = parseInt(elemObjRotationX.value) + 1;
+      newRotationY = parseInt(elemObjRotationY.value) + 1;
+
+      elemObjRotationX.value = newRotationX > 180 ? -179 : newRotationX;
+      elemObjRotationY.value = newRotationY > 180 ? -179 : newRotationY;
+
+      obj.rotation[0] = degToRad(elemObjRotationX.value);
+      obj.rotation[1] = degToRad(elemObjRotationY.value);
+
       drawScene();
     }, 5);
   }
-}
+};
 
 const animStop = () => {
   console.log("Stopping animation...");
@@ -243,54 +292,17 @@ const animStop = () => {
     clearInterval(animation);
     animation = null;
   }
-}
-
-const reset = (obj, cam) => {
-  obj.setDefault();
-  cam.setDefault();
-  isShading = false;
-
-  const elemShading = document.getElementById("shading");
-  const elemProjection = document.getElementById("projection");
-  const elemViewAngle = document.getElementById("view-angle");
-  const elemViewZoom = document.getElementById("view-zoom");
-  const elemObjRotationX = document.getElementById("obj-x-rotation");
-  const elemObjRotationY = document.getElementById("obj-y-rotation");
-  const elemObjRotationZ = document.getElementById("obj-z-rotation");
-  const elemObjTranslationX = document.getElementById("obj-x-translation");
-  const elemObjTranslationY = document.getElementById("obj-y-translation");
-  const elemObjTranslationZ = document.getElementById("obj-z-translation");
-  const elemObjScaleX = document.getElementById("obj-x-scale");
-  const elemObjScaleY = document.getElementById("obj-y-scale");
-  const elemObjScaleZ = document.getElementById("obj-z-scale");
-
-  elemShading.checked = false;
-  elemProjection.value = "perspective";
-  elemViewAngle.value = radToDeg(cam.cameraAngle);
-  elemViewZoom.value = cam.cameraRadius;
-  elemObjRotationX.value = radToDeg(obj.rotation[0]);
-  elemObjRotationY.value = radToDeg(obj.rotation[1]);
-  elemObjRotationZ.value = radToDeg(obj.rotation[2]);
-  elemObjTranslationX.value = obj.translation[0];
-  elemObjTranslationY.value = obj.translation[1];
-  elemObjTranslationZ.value = obj.translation[2];
-  elemObjScaleX.value = parseFloat(parseFloat(obj.scale[0]).toFixed(2));
-  elemObjScaleY.value = parseFloat(parseFloat(obj.scale[1]).toFixed(2));
-  elemObjScaleZ.value = parseFloat(parseFloat(obj.scale[2]).toFixed(2));
-
-  drawScene();
-  console.log("Resetting...");
-}
+};
 
 const showModal = (e) => {
   const myModal = document.getElementById("myModal");
   myModal.style.display = "block";
-}
+};
 
-const closeModal = (e) => {
+const closeModal = () => {
   const myModal = document.getElementById("myModal");
   myModal.style.display = "none";
-}
+};
 
 window.onclick = function (event) {
   if (event.target == document.getElementById("myModal")) {
@@ -298,55 +310,62 @@ window.onclick = function (event) {
   }
 };
 
-const setupListener = (obj, cam) => {
-  const elemImport = document.getElementById("importButton");
-  const elemExport = document.getElementById("exportButton");
-  const elemShading = document.getElementById("shading");
-  const elemProjection = document.getElementById("projection");
-  const elemViewAngle = document.getElementById("view-angle");
-  const elemViewZoom = document.getElementById("view-zoom");
-  const elemObjRotationX = document.getElementById("obj-x-rotation");
-  const elemObjRotationY = document.getElementById("obj-y-rotation");
-  const elemObjRotationZ = document.getElementById("obj-z-rotation");
-  const elemObjTranslationX = document.getElementById("obj-x-translation");
-  const elemObjTranslationY = document.getElementById("obj-y-translation");
-  const elemObjTranslationZ = document.getElementById("obj-z-translation");
-  const elemObjScaleX = document.getElementById("obj-x-scale");
-  const elemObjScaleY = document.getElementById("obj-y-scale");
-  const elemObjScaleZ = document.getElementById("obj-z-scale");
-  const elemAnimStart = document.getElementById("anim-start");
-  const elemAnimStop = document.getElementById("anim-stop");
-  const elemReset = document.getElementById("reset");
-  const elemModal = document.getElementById("modal");
-  const elemClose = document.getElementById("close");
+const resetRotation = () => {
+  obj.rotation = [0, 0, 0];
+  elemObjRotationX.value = 0;
+  elemObjRotationY.value = 0;
+  elemObjRotationZ.value = 0;
+  console.log("Resetting object rotation...");
+  drawScene();
+};
+const resetTranslation = () => {
+  obj.translation = [0, 0, 0];
+  elemObjTranslationX.value = 0;
+  elemObjTranslationY.value = 0;
+  elemObjTranslationZ.value = 0;
+  console.log("Resetting object translation...");
+  drawScene();
+};
 
-  elemImport.addEventListener("click", (e) => importObject(e, obj));
-  elemExport.addEventListener("click", (e) => exportObject(e, obj));
+const resetScale = () => {
+  obj.scale = [1, 1, 1];
+  elemObjScaleX.value = 1;
+  elemObjScaleY.value = 1;
+  elemObjScaleZ.value = 1;
+  console.log("Resetting object scale...");
+  drawScene();
+};
+
+const setupListener = () => {
+  elemImport.addEventListener("click", () => importObject());
+  elemExport.addEventListener("click", () => exportObject());
   elemShading.addEventListener("change", (e) => changeShading(e));
-  elemProjection.addEventListener("change", (e) => changeProjection(e, cam));
-  elemViewAngle.addEventListener("input", (e) => changeViewAngle(e, cam));
-  elemViewZoom.addEventListener("input", (e) => changeViewZoom(e, cam));
-  elemObjRotationX.addEventListener("input", (e) => changeObjRotationX(e, obj));
-  elemObjRotationY.addEventListener("input", (e) => changeObjRotationY(e, obj));
-  elemObjRotationZ.addEventListener("input", (e) => changeObjRotationZ(e, obj));
+  elemProjection.addEventListener("change", (e) => changeProjection(e));
+  elemResetView.addEventListener("click", () => resetView());
+  elemResetRotation.addEventListener("click", () => resetRotation());
+  elemResetTranslation.addEventListener("click", () => resetTranslation());
+  elemResetScale.addEventListener("click", () => resetScale());
+  elemCameraAngle.addEventListener("input", (e) => changeCameraAngle(e));
+  elemCameraRadius.addEventListener("input", (e) => changeCameraRadius(e));
+  elemObjRotationX.addEventListener("input", (e) => changeObjRotationX(e));
+  elemObjRotationY.addEventListener("input", (e) => changeObjRotationY(e));
+  elemObjRotationZ.addEventListener("input", (e) => changeObjRotationZ(e));
   elemObjTranslationX.addEventListener("input", (e) =>
-    changeObjTranslationX(e, obj)
+    changeObjTranslationX(e)
   );
   elemObjTranslationY.addEventListener("input", (e) =>
-    changeObjTranslationY(e, obj)
+    changeObjTranslationY(e)
   );
   elemObjTranslationZ.addEventListener("input", (e) =>
-    changeObjTranslationZ(e, obj)
+    changeObjTranslationZ(e)
   );
-  
-  elemObjScaleX.addEventListener("input", (e) => changeObjScaleX(e, obj));
-  elemObjScaleY.addEventListener("input", (e) => changeObjScaleY(e, obj));
-  elemObjScaleZ.addEventListener("input", (e) => changeObjScaleZ(e, obj));
-  elemAnimStart.addEventListener("click", () => animStart(obj, elemObjRotationY));
+  elemObjScaleX.addEventListener("input", (e) => changeObjScaleX(e));
+  elemObjScaleY.addEventListener("input", (e) => changeObjScaleY(e));
+  elemObjScaleZ.addEventListener("input", (e) => changeObjScaleZ(e));
+  elemAnimStart.addEventListener("click", () => animStart());
   elemAnimStop.addEventListener("click", () => animStop());
-  elemReset.addEventListener("click", () => reset(obj, cam));
-  elemModal.addEventListener("click", (e) => showModal(e));
-  elemClose.addEventListener("click", (e) => closeModal(e));
+  elemModal.addEventListener("click", () => showModal());
+  elemClose.addEventListener("click", () => closeModal());
 };
 
 main();
