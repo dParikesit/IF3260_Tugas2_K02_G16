@@ -5,19 +5,23 @@ class Camera {
     this.cameraRadius = 5;
     this.shadingMode = false;
     this.projectionMatrix = [];
+    this.orthoRadius = 0;
     this.setProjectionMatrix("perspective");
   }
 
-  resetView() {
+  resetView(projection) {
     this.cameraAngle = 0;
     this.cameraRadius = 5;
+    this.orthoRadius = 0;
+    this.setProjectionMatrix(projection);
   }
 
   setProjectionMatrix(projection) {
-    const left = -2;
-    const right = 2;
-    const bottom = -2;
-    const top = 2;
+    const left = -3;
+    const right = 3;
+    const bottom = -3;
+    const top = 3;
+
     const near = -500;
     const far = 500;
 
@@ -29,13 +33,18 @@ class Camera {
     const theta = degToRad(60);
     const phi = degToRad(60);
 
+    console.log(left + this.orthoRadius);
+    console.log(right - this.orthoRadius);
+    console.log(bottom + this.orthoRadius);
+    console.log(top - this.orthoRadius);
+
     switch (projection) {
       case "orthographic":
         this.projectionMatrix = m4.orthographic(
-          left,
-          right,
-          bottom,
-          top,
+          left + this.orthoRadius,
+          right - this.orthoRadius,
+          bottom + this.orthoRadius,
+          top - this.orthoRadius,
           near,
           far
         );
@@ -44,7 +53,14 @@ class Camera {
         this.projectionMatrix = m4.perspective(fov, aspect, zNear, zFar);
         break;
       case "oblique":
-        const ortho = m4.orthographic(left, right, bottom, top, near, far);
+        const ortho = m4.orthographic(
+          left + this.orthoRadius,
+          right - this.orthoRadius,
+          bottom + this.orthoRadius,
+          top - this.orthoRadius,
+          near,
+          far
+        );
         const oblique = m4.oblique(theta, phi);
         const projection = m4.multiply(ortho, oblique);
         this.projectionMatrix = m4.translate(projection, 0, 0, 5);

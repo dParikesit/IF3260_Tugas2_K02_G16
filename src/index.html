@@ -14,7 +14,7 @@
           Oops ... your browser doesn't support the HTML5 canvas element
         </canvas>
       </div>
-      <div class="flex-column">
+      <div class="flex-column scrollable">
         <button id="modal">Help</button>
         <h1>WebGL Hollow Object</h1>
         <h3>IMPORT AND EXPORT FILE</h3>
@@ -24,7 +24,7 @@
         <button id="exportButton">Export</button>
         <h3>SHADING</h3>
         <div>
-          <input type="checkbox" id="shading" />
+          <input type="checkbox" id="shading" checked />
           <label for="shading">Shading</label>
         </div>
         <h3>PROJECTION</h3>
@@ -35,9 +35,11 @@
         </select>
 
         <h3>VIEW</h3>
+
         <div>
           <button id="reset-view">Reset View</button>
         </div>
+        <div id="zoom-properties"></div>
         <label for="camera-angle">Camera Angle: </label>
         <div>
           <input
@@ -54,8 +56,8 @@
           <input
             type="range"
             id="camera-radius"
-            min="0"
-            max="10"
+            min="0.1"
+            max="20"
             step="0.1"
             value="5"
           />

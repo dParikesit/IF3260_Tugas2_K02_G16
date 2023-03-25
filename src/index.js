@@ -54,8 +54,9 @@ const elemAnimStop = document.getElementById("anim-stop");
 const elemReset = document.getElementById("reset");
 const elemModal = document.getElementById("modal");
 const elemClose = document.getElementById("close");
+const elemZoomProperties = document.getElementById("zoom-properties");
 
-let isShading = false;
+let isShading = true;
 let animation = null;
 let animDirRight = true;
 
@@ -65,7 +66,7 @@ const main = () => {
     alert("WebGL isn't available");
     return;
   }
-
+  initialize();
   setupListener();
   drawScene();
 };
@@ -125,11 +126,6 @@ const drawScene = () => {
   gl.uniform3fv(u_reverseLightDirection, normalize([0.4, 0.5, 1.0]));
 
   gl.drawElements(gl.TRIANGLES, obj.indices.length, gl.UNSIGNED_SHORT, 0);
-
-  let a = [2, 2, 2, 2]
-  let b = obj.getModelMatrix();
-  a = m4.multiply3(a, b);
-    console.log(a)
 };
 
 const importObject = () => {
@@ -176,6 +172,12 @@ const exportObject = () => {
   console.log(`Exporting ${filename}...`);
 };
 
+const changeOrthoZoom = (radius) => {
+  camera.orthoRadius = parseFloat(radius);
+  camera.setProjectionMatrix(elemProjection.value);
+  drawScene();
+};
+
 const changeShading = (e) => {
   isShading = e.target.checked;
   console.log(`Changing shading to ${isShading}...`);
@@ -183,7 +185,7 @@ const changeShading = (e) => {
 };
 
 const resetView = () => {
-  camera.resetView();
+  camera.resetView(elemProjection.value);
   elemCameraAngle.value = 0;
   elemCameraRadius.value = 5;
   console.log("Resetting camera...");
@@ -192,74 +194,119 @@ const resetView = () => {
 
 const changeProjection = (e) => {
   camera.setProjectionMatrix(e.target.value);
+  switch (e.target.value) {
+    case "perspective":
+      elemZoomProperties.innerHTML = "";
+      break;
+    case "orthographic":
+      elemZoomProperties.innerHTML = `
+      <label>Orthographic Zoom:</label>
+      <div>
+        <input
+          type="range"
+          min="-10"
+          max="3"
+          step="0.1"
+          value= ${camera.orthoRadius}
+          oninput="changeOrthoZoom(this.value)"
+        />
+      </div>
+      `;
+      break;
+    case "oblique":
+      elemZoomProperties.innerHTML = `
+      <label>Oblique Zoom:</label>
+      <div>
+        <input
+          type="range"
+          min="-10"
+          max="3"
+          step="0.1"
+          value= ${camera.orthoRadius}
+          oninput="changeOrthoZoom(this.value)"
+        />
+      </div>
+      `;
+      break;
+  }
   console.log(`Changing projection to ${e.target.value}...`);
   drawScene();
 };
 
 const changeCameraAngle = (e) => {
-  camera.cameraAngle = degToRad(e.target.value);
-  console.log(`Changing view angle to ${e.target.value}...`);
+  const angle = parseInt(e.target.value);
+  camera.cameraAngle = degToRad(angle);
+  console.log(`Changing view angle to ${angle}...`);
   drawScene();
 };
 
 const changeCameraRadius = (e) => {
-  const radius = e.target.value;
+  const radius = parseFloat(e.target.value);
   camera.cameraRadius = radius;
   console.log(`Changing view zoom Y to ${radius}...`);
   drawScene();
 };
 
 const changeObjRotationX = (e) => {
-  obj.rotation[0] = degToRad(e.target.value);
-  console.log(`Changing object rotation X to ${e.target.value}...`);
+  const angle = parseInt(e.target.value);
+  obj.rotation[0] = degToRad(angle);
+  console.log(`Changing object rotation X to ${angle}...`);
   drawScene();
 };
 
 const changeObjRotationY = (e) => {
-  obj.rotation[1] = degToRad(e.target.value);
-  console.log(`Changing object rotation Y to ${e.target.value}...`);
+  const angle = parseInt(e.target.value);
+  obj.rotation[1] = degToRad(angle);
+  console.log(`Changing object rotation Y to ${angle}...`);
   drawScene();
 };
 
 const changeObjRotationZ = (e) => {
-  obj.rotation[2] = degToRad(e.target.value);
-  console.log(`Changing object rotation Z to ${e.target.value}...`);
+  const angle = parseInt(e.target.value);
+  obj.rotation[2] = degToRad(angle);
+  console.log(`Changing object rotation Z to ${angle}...`);
   drawScene();
 };
 
 const changeObjTranslationX = (e) => {
-  obj.translation[0] = e.target.value;
-  console.log(`Changing object translation X to ${e.target.value}...`);
+  const distance = parseFloat(e.target.value).toFixed(2);
+  obj.translation[0] = distance;
+  console.log(`Changing object translation X to ${distance}...`);
   drawScene();
 };
 
 const changeObjTranslationY = (e) => {
-  obj.translation[1] = e.target.value;
-  console.log(`Changing object translation Y to ${e.target.value}...`);
+  const distance = parseFloat(e.target.value).toFixed(2);
+  obj.translation[1] = distance;
+  console.log(`Changing object translation Y to ${distance}...`);
   drawScene();
 };
 
 const changeObjTranslationZ = (e) => {
-  obj.translation[2] = e.target.value;
-  console.log(`Changing object translation Z to ${e.target.value}...`);
+  const distance = parseFloat(e.target.value).toFixed(2);
+  obj.translation[2] = distance;
+  console.log(`Changing object translation Z to ${distance}...`);
   drawScene();
 };
 
 const changeObjScaleX = (e) => {
-  obj.scale[0] = e.target.value;
-  console.log(`Changing object scale X to ${e.target.value}...`);
+  const scale = parseFloat(e.target.value).toFixed(2);
+  obj.scale[0] = scale;
+  console.log(`Changing object scale X to ${scale}...`);
   drawScene();
 };
 
 const changeObjScaleY = (e) => {
-  obj.scale[1] = e.target.value;
-  console.log(`Changing object scale Y to ${e.target.value}...`);
+  const scale = parseFloat(e.target.value).toFixed(2);
+  obj.scale[1] = scale;
+  console.log(`Changing object scale Y to ${scale}...`);
   drawScene();
 };
 
 const changeObjScaleZ = (e) => {
-  obj.scale[2] = e.target.value;
-  console.log(`Changing object scale Z to ${e.target.value}...`);
+  const scale = parseFloat(e.target.value).toFixed(2);
+  obj.scale[2] = scale;
+  console.log(`Changing object scale Z to ${scale}...`);
   drawScene();
 };
 
@@ -366,6 +413,200 @@ const setupListener = () => {
   elemAnimStop.addEventListener("click", () => animStop());
   elemModal.addEventListener("click", () => showModal());
   elemClose.addEventListener("click", () => closeModal());
+};
+
+const initialize = () => {
+  obj.vertices = [
+    0.75, -0.75, -1.0, -0.75, -0.75, -1.0, -0.75, -0.75, -0.75, 0.75, -0.75,
+    -0.75,
+
+    -1.0, -0.75, -0.75, -1.0, -0.75, 0.75, -0.75, -0.75, 0.75, -0.75, -0.75,
+    -0.75,
+
+    -0.75, -0.75, 1.0, 0.75, -0.75, 1.0, 0.75, -0.75, 0.75, -0.75, -0.75, 0.75,
+
+    1.0, -0.75, 0.75, 1.0, -0.75, -0.75, 0.75, -0.75, -0.75, 0.75, -0.75, 0.75,
+
+    0.75, -0.75, -1.0, 0.75, -1, -1.0, -0.75, -1, -1.0, -0.75, -0.75, -1.0,
+
+    -0.75, -0.75, -0.75, -0.75, -1, -0.75, 0.75, -1, -0.75, 0.75, -0.75, -0.75,
+
+    -0.75, -1, -1.0, 0.75, -1, -1.0, 0.75, -1, -0.75, -0.75, -1, -0.75,
+
+    -1.0, -0.75, 0.75, -1.0, -0.75, -0.75, -1.0, -1, -0.75, -1.0, -1, 0.75,
+
+    -0.75, -0.75, -0.75, -0.75, -0.75, 0.75, -0.75, -1, 0.75, -0.75, -1, -0.75,
+
+    -1.0, -1, 0.75, -1.0, -1, -0.75, -0.75, -1, -0.75, -0.75, -1, 0.75,
+
+    0.75, -0.75, 1.0, -0.75, -0.75, 1.0, -0.75, -1, 1.0, 0.75, -1, 1.0,
+
+    -0.75, -0.75, 0.75, 0.75, -0.75, 0.75, 0.75, -1, 0.75, -0.75, -1, 0.75,
+
+    0.75, -1, 1.0, -0.75, -1, 1.0, -0.75, -1, 0.75, 0.75, -1, 0.75,
+
+    1.0, -0.75, -0.75, 1.0, -0.75, 0.75, 1.0, -1, 0.75, 1.0, -1, -0.75,
+
+    0.75, -0.75, 0.75, 0.75, -0.75, -0.75, 0.75, -1, -0.75, 0.75, -1, 0.75,
+
+    1.0, -1, -0.75, 1.0, -1, 0.75, 0.75, -1, 0.75, 0.75, -1, -0.75,
+
+    0.75, 1, -1.0, -0.75, 1, -1.0, -0.75, 1, -0.75, 0.75, 1, -0.75,
+
+    -1.0, 1, -0.75, -1.0, 1, 0.75, -0.75, 1, 0.75, -0.75, 1, -0.75,
+
+    -0.75, 1, 1.0, 0.75, 1, 1.0, 0.75, 1, 0.75, -0.75, 1, 0.75,
+
+    1.0, 1, 0.75, 1.0, 1, -0.75, 0.75, 1, -0.75, 0.75, 1, 0.75,
+
+    0.75, 1, -1.0, 0.75, 0.75, -1.0, -0.75, 0.75, -1.0, -0.75, 1, -1.0,
+
+    -0.75, 1, -0.75, -0.75, 0.75, -0.75, 0.75, 0.75, -0.75, 0.75, 1, -0.75,
+
+    -0.75, 0.75, -1.0, 0.75, 0.75, -1.0, 0.75, 0.75, -0.75, -0.75, 0.75, -0.75,
+
+    -1.0, 1, 0.75, -1.0, 1, -0.75, -1.0, 0.75, -0.75, -1.0, 0.75, 0.75,
+
+    -0.75, 1, -0.75, -0.75, 1, 0.75, -0.75, 0.75, 0.75, -0.75, 0.75, -0.75,
+
+    -1.0, 0.75, 0.75, -1.0, 0.75, -0.75, -0.75, 0.75, -0.75, -0.75, 0.75, 0.75,
+
+    0.75, 1, 1.0, -0.75, 1, 1.0, -0.75, 0.75, 1.0, 0.75, 0.75, 1.0,
+
+    -0.75, 1, 0.75, 0.75, 1, 0.75, 0.75, 0.75, 0.75, -0.75, 0.75, 0.75,
+
+    0.75, 0.75, 1.0, -0.75, 0.75, 1.0, -0.75, 0.75, 0.75, 0.75, 0.75, 0.75,
+
+    1.0, 1, -0.75, 1.0, 1, 0.75, 1.0, 0.75, 0.75, 1.0, 0.75, -0.75,
+
+    0.75, 1, 0.75, 0.75, 1, -0.75, 0.75, 0.75, -0.75, 0.75, 0.75, 0.75,
+
+    1.0, 0.75, -0.75, 1.0, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, -0.75,
+
+    -1.0, 1, -1.0, -0.75, 1, -1.0, -0.75, -1, -1.0, -1.0, -1, -1.0,
+
+    -1.0, 1.0, -0.75, -1.0, 1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -0.75,
+
+    -0.75, 0.75, -0.75, -1.0, 0.75, -0.75, -1.0, -0.75, -0.75, -0.75, -0.75,
+    -0.75,
+
+    -0.75, 0.75, -1.0, -0.75, 0.75, -0.75, -0.75, -0.75, -0.75, -0.75, -0.75,
+    -1.0,
+
+    -0.75, 1.0, -1.0, -1.0, 1.0, -1.0, -1.0, 1.0, -0.75, -0.75, 1.0, -0.75,
+
+    -1.0, -1.0, -1.0, -0.75, -1.0, -1.0, -0.75, -1.0, -0.75, -1.0, -1.0, -0.75,
+
+    0.75, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0, -1.0, -1.0, 0.75, -1.0, -1.0,
+
+    0.75, 0.75, -0.75, 0.75, 0.75, -1.0, 0.75, -0.75, -1.0, 0.75, -0.75, -0.75,
+
+    1.0, 0.75, -0.75, 0.75, 0.75, -0.75, 0.75, -0.75, -0.75, 1.0, -0.75, -0.75,
+
+    1.0, 1.0, -1.0, 1.0, 1.0, -0.75, 1.0, -1.0, -0.75, 1.0, -1.0, -1.0,
+
+    1.0, 1.0, -1.0, 0.75, 1.0, -1.0, 0.75, 1.0, -0.75, 1.0, 1.0, -0.75,
+
+    0.75, -1.0, -1.0, 1.0, -1.0, -1.0, 1.0, -1.0, -0.75, 0.75, -1.0, -0.75,
+
+    -1.0, 0.75, 0.75, -0.75, 0.75, 0.75, -0.75, -0.75, 0.75, -1.0, -0.75, 0.75,
+
+    -1.0, 1.0, 1.0, -1.0, 1.0, 0.75, -1.0, -1.0, 0.75, -1.0, -1.0, 1.0,
+
+    -0.75, 1.0, 1.0, -1.0, 1.0, 1.0, -1.0, -1.0, 1.0, -0.75, -1.0, 1.0,
+
+    -0.75, 0.75, 0.75, -0.75, 0.75, 1.0, -0.75, -0.75, 1.0, -0.75, -0.75, 0.75,
+
+    -1.0, 1.0, 1.0, -0.75, 1.0, 1.0, -0.75, 1.0, 0.75, -1.0, 1.0, 0.75,
+
+    -0.75, -1.0, 1.0, -1.0, -1.0, 1.0, -1.0, -1.0, 0.75, -0.75, -1.0, 0.75,
+
+    0.75, 0.75, 0.75, 1.0, 0.75, 0.75, 1.0, -0.75, 0.75, 0.75, -0.75, 0.75,
+
+    0.75, 0.75, 1.0, 0.75, 0.75, 0.75, 0.75, -0.75, 0.75, 0.75, -0.75, 1.0,
+
+    1.0, 1.0, 1.0, 0.75, 1.0, 1.0, 0.75, -1.0, 1.0, 1.0, -1.0, 1.0,
+
+    1.0, 1.0, 0.75, 1.0, 1.0, 1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 0.75,
+
+    1.0, 1.0, 1.0, 1.0, 1.0, 0.75, 0.75, 1.0, 0.75, 0.75, 1.0, 1.0,
+
+    1.0, -1.0, 0.75, 1.0, -1.0, 1.0, 0.75, -1.0, 1.0, 0.75, -1.0, 0.75,
+  ];
+  obj.indices = [
+    0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7, 8, 9, 10, 8, 10, 11, 12, 13, 14, 12, 14,
+    15, 16, 17, 18, 16, 18, 19, 20, 21, 22, 20, 22, 23, 24, 25, 26, 24, 26, 27,
+    28, 29, 30, 28, 30, 31, 32, 33, 34, 32, 34, 35, 36, 37, 38, 36, 38, 39, 40,
+    41, 42, 40, 42, 43, 44, 45, 46, 44, 46, 47, 48, 49, 50, 48, 50, 51, 52, 53,
+    54, 52, 54, 55, 56, 57, 58, 56, 58, 59, 60, 61, 62, 60, 62, 63, 64, 65, 66,
+    64, 66, 67, 68, 69, 70, 68, 70, 71, 72, 73, 74, 72, 74, 75, 76, 77, 78, 76,
+    78, 79, 80, 81, 82, 80, 82, 83, 84, 85, 86, 84, 86, 87, 88, 89, 90, 88, 90,
+    91, 92, 93, 94, 92, 94, 95, 96, 97, 98, 96, 98, 99, 100, 101, 102, 100, 102,
+    103, 104, 105, 106, 104, 106, 107, 108, 109, 110, 108, 110, 111, 112, 113,
+    114, 112, 114, 115, 116, 117, 118, 116, 118, 119, 120, 121, 122, 120, 122,
+    123, 124, 125, 126, 124, 126, 127, 128, 129, 130, 128, 130, 131, 132, 133,
+    134, 132, 134, 135, 136, 137, 138, 136, 138, 139, 140, 141, 142, 140, 142,
+    143, 144, 145, 146, 144, 146, 147, 148, 149, 150, 148, 150, 151, 152, 153,
+    154, 152, 154, 155, 156, 157, 158, 156, 158, 159, 160, 161, 162, 160, 162,
+    163, 164, 165, 166, 164, 166, 167, 168, 169, 170, 168, 170, 171, 172, 173,
+    174, 172, 174, 175, 176, 177, 178, 176, 178, 179, 180, 181, 182, 180, 182,
+    183, 184, 185, 186, 184, 186, 187, 188, 189, 190, 188, 190, 191, 192, 193,
+    194, 192, 194, 195, 196, 197, 198, 196, 198, 199, 200, 201, 202, 200, 202,
+    203, 204, 205, 206, 204, 206, 207, 208, 209, 210, 208, 210, 211, 212, 213,
+    214, 212, 214, 215, 216, 217, 218, 216, 218, 219, 220, 221, 222, 220, 222,
+    223,
+  ];
+
+  obj.colors = [
+    255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0,
+    255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0,
+    0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255,
+    0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255,
+    255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0,
+    255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0,
+    0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255,
+    0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255,
+    255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0,
+    255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0,
+    0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255,
+    0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255,
+    255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0,
+    255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0,
+    0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255,
+    0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255,
+    255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0,
+    255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0,
+    0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255,
+    0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255,
+    255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0,
+    255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0,
+    0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255,
+    0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255,
+    255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0,
+    255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0,
+    0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255,
+    0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255,
+    255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0,
+    255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0,
+    0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255,
+    0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255,
+    255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0,
+    255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0,
+    0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255,
+    0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255,
+    255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0,
+    255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0,
+    0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255,
+    0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255,
+    255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0,
+    255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0,
+    0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255,
+    0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255,
+    255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0,
+    255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0,
+    0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255,
+    0, 0, 255,
+  ];
 };
 
 main();
