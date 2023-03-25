@@ -241,6 +241,13 @@ const animStop = () => {
   }
 }
 
+const reset = (obj, cam) => {
+  obj.setDefault();
+  cam.setDefault();
+  drawScene()
+  console.log("Resetting...");
+}
+
 const setupListener = (obj, cam) => {
   const elemImport = document.getElementById("importButton");
   const elemExport = document.getElementById("exportButton");
@@ -259,6 +266,7 @@ const setupListener = (obj, cam) => {
   const elemObjScaleZ = document.getElementById("obj-z-scale");
   const elemAnimStart = document.getElementById("anim-start");
   const elemAnimStop = document.getElementById("anim-stop");
+  const elemReset = document.getElementById("reset");
 
   elemImport.addEventListener("click", (e) => importObject(e, obj));
   elemExport.addEventListener("click", (e) => exportObject());
@@ -284,6 +292,7 @@ const setupListener = (obj, cam) => {
   elemObjScaleZ.addEventListener("input", (e) => changeObjScaleZ(e, obj));
   elemAnimStart.addEventListener("click", () => animStart(obj, elemObjRotationY));
   elemAnimStop.addEventListener("click", () => animStop());
+  elemReset.addEventListener("click", () => reset(obj, cam));
 };
 
 main();

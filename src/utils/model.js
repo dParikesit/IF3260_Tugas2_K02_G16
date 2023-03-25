@@ -33,9 +33,9 @@ class Model {
   }
 
   setDefault() {
-    this.vertices = []
-    this.indices = []
-    this.colors = [];
+    // this.vertices = []
+    // this.indices = []
+    // this.colors = [];
     this.translation = [0, 0, 0];
     this.rotation = [0, 0, 0];
     this.scale = [1, 1, 1];
