@@ -249,6 +249,35 @@ const reset = (obj, cam) => {
   obj.setDefault();
   cam.setDefault();
   isShading = false;
+
+  const elemShading = document.getElementById("shading");
+  const elemProjection = document.getElementById("projection");
+  const elemViewAngle = document.getElementById("view-angle");
+  const elemViewZoom = document.getElementById("view-zoom");
+  const elemObjRotationX = document.getElementById("obj-x-rotation");
+  const elemObjRotationY = document.getElementById("obj-y-rotation");
+  const elemObjRotationZ = document.getElementById("obj-z-rotation");
+  const elemObjTranslationX = document.getElementById("obj-x-translation");
+  const elemObjTranslationY = document.getElementById("obj-y-translation");
+  const elemObjTranslationZ = document.getElementById("obj-z-translation");
+  const elemObjScaleX = document.getElementById("obj-x-scale");
+  const elemObjScaleY = document.getElementById("obj-y-scale");
+  const elemObjScaleZ = document.getElementById("obj-z-scale");
+
+  elemShading.checked = false;
+  elemProjection.value = "perspective";
+  elemViewAngle.value = radToDeg(cam.cameraAngle);
+  elemViewZoom.value = cam.cameraRadius;
+  elemObjRotationX.value = radToDeg(obj.rotation[0]);
+  elemObjRotationY.value = radToDeg(obj.rotation[1]);
+  elemObjRotationZ.value = radToDeg(obj.rotation[2]);
+  elemObjTranslationX.value = obj.translation[0];
+  elemObjTranslationY.value = obj.translation[1];
+  elemObjTranslationZ.value = obj.translation[2];
+  elemObjScaleX.value = parseFloat(parseFloat(obj.scale[0]).toFixed(2));
+  elemObjScaleY.value = parseFloat(parseFloat(obj.scale[1]).toFixed(2));
+  elemObjScaleZ.value = parseFloat(parseFloat(obj.scale[2]).toFixed(2));
+
   drawScene();
   console.log("Resetting...");
 }
