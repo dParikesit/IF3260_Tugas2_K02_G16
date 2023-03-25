@@ -15,12 +15,16 @@
         </canvas>
       </div>
       <div class="flex-column">
+        <button id="modal">Help</button>
         <h1>WebGL Hollow Object</h1>
         <h3>IMPORT AND EXPORT FILE</h3>
         <input type="file" id="import" accept=".json" />
         <button id="importButton">Import</button>
         <input type="text" id="export" placeholder="Enter file name" />
         <button id="exportButton">Export</button>
+
+        <h3>RESET</h3>
+        <button id="reset">Reset</button>
 
         <h3>SHADING</h3>
         <div>
@@ -164,10 +168,61 @@
           <button id="anim-start">Start</button>
           <button id="anim-stop">Stop</button>
         </div>
-        <h3>RESET</h3>
-        <div>
-          <button id="reset">Reset</button>
+
+        <div id="myModal" class="modal">
+          <div class="modal-content">
+            <span class="close" id="close">&times;</span>
+            <h1>Help</h1>
+            <ul>
+              <li>
+                Import
+                <ul>
+                  <li>Klik choose file</li>
+                  <li>Klik import</li>
+                </ul>
+              </li>
+              <li>
+                Export
+                <ul>
+                  <li>Ketik nama file</li>
+                  <li>Klik export</li>
+                </ul>
+              </li>
+              <li>
+                Reset
+                <ul>
+                  <li>Mereset transformasi pada object dan camera</li>
+                </ul>
+              </li>
+              <li>
+                Shading
+                <ul>
+                  <li>Klik checkbox untuk toggle shading</li>
+                </ul>
+              </li>
+              <li>
+                Projection
+                <ul>
+                  <li>Klik item dropdown untuk mengubah jenis projection yang dilakukan</li>
+                </ul>
+              </li>
+              <li>
+                View, Rotation, Translation, Scaling
+                <ul>
+                  <li>Geser slider untuk melakukan transformasi camera dan object</li>
+                </ul>
+              </li>
+              <li>
+                Animation
+                <ul>
+                  <li>Klik start untuk mulai animasi rotasi terhadap sumbu y</li>
+                  <li>Klik stop untuk menghentikan animasi</li>
+                </ul>
+              </li>
+            </ul>
+          </div>
         </div>
+
       </div>
     </div>
   </body>

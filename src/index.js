@@ -102,7 +102,11 @@ const importObject = (e, obj) => {
 };
 
 const exportObject = (e, obj) => {
-  const filename = document.getElementById("export").value;
+  let filename = document.getElementById("export").value;
+  if (filename === "") {
+    filename="Object";
+  }
+
   let modelStr = JSON.stringify({
     vertices: obj.vertices,
     indices: obj.indices,
@@ -244,9 +248,26 @@ const animStop = () => {
 const reset = (obj, cam) => {
   obj.setDefault();
   cam.setDefault();
-  drawScene()
+  isShading = false;
+  drawScene();
   console.log("Resetting...");
 }
+
+const showModal = (e) => {
+  const myModal = document.getElementById("myModal");
+  myModal.style.display = "block";
+}
+
+const closeModal = (e) => {
+  const myModal = document.getElementById("myModal");
+  myModal.style.display = "none";
+}
+
+window.onclick = function (event) {
+  if (event.target == document.getElementById("myModal")) {
+    document.getElementById("myModal").style.display = "none";
+  }
+};
 
 const setupListener = (obj, cam) => {
   const elemImport = document.getElementById("importButton");
@@ -267,9 +288,11 @@ const setupListener = (obj, cam) => {
   const elemAnimStart = document.getElementById("anim-start");
   const elemAnimStop = document.getElementById("anim-stop");
   const elemReset = document.getElementById("reset");
+  const elemModal = document.getElementById("modal");
+  const elemClose = document.getElementById("close");
 
   elemImport.addEventListener("click", (e) => importObject(e, obj));
-  elemExport.addEventListener("click", (e) => exportObject());
+  elemExport.addEventListener("click", (e) => exportObject(e, obj));
   elemShading.addEventListener("change", (e) => changeShading(e));
   elemProjection.addEventListener("change", (e) => changeProjection(e, cam));
   elemViewAngle.addEventListener("input", (e) => changeViewAngle(e, cam));
@@ -293,6 +316,8 @@ const setupListener = (obj, cam) => {
   elemAnimStart.addEventListener("click", () => animStart(obj, elemObjRotationY));
   elemAnimStop.addEventListener("click", () => animStop());
   elemReset.addEventListener("click", () => reset(obj, cam));
+  elemModal.addEventListener("click", (e) => showModal(e));
+  elemClose.addEventListener("click", (e) => closeModal(e));
 };
 
 main();
